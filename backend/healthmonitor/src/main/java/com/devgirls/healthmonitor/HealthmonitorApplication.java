@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HealthmonitorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HealthmonitorApplication.class, args);
+        var context = SpringApplication.run(HealthmonitorApplication.class, args);
+        System.out.println("Healthmonitor started");
     }
 
 }
