@@ -51,6 +51,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>11.14.1</version>
         </dependency>
 
         <!-- Testing -->
@@ -88,6 +89,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
+                        <name>healthmonitor:${project.version}</name>
                         <runImage>paketobuildpacks/ubuntu-noble-run-base:latest</runImage>
                     </image>
                 </configuration>
@@ -97,7 +99,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>11.7.1</version>
+                <version>11.13.3</version>
                 <configuration>
                     <url>jdbc:postgresql://localhost:5432/healthdb?createDatabaseIfNotExist=true</url>
                     <user>postgres</user>
