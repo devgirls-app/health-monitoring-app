@@ -9,6 +9,7 @@ This document describes the project’s setup and development steps up to the po
 
 ## 2. Project Structure
 health-monitoring-app/
+
 ├── backend/ # Spring Boot backend with PostgreSQL and Kafka
 
 ├── ios/ # iOS mobile application
@@ -59,4 +60,5 @@ WORKDIR /app
 COPY target/healthmonitor-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
