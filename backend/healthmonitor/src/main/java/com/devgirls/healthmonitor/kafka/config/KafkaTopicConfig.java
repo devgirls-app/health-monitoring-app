@@ -1,4 +1,4 @@
-package com.devgirls.healthmonitor.config;
+package com.devgirls.healthmonitor.kafka.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
