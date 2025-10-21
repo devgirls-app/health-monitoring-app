@@ -1,4 +1,4 @@
-package com.devgirls.healthmonitor.service;
+package com.devgirls.healthmonitor.kafka.producer;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
