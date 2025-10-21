@@ -62,3 +62,19 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
+
+
+
+## System Architecture
+
+The following diagram illustrates the overall architecture of the health monitoring system:
+
+![System Architecture](diagrams/system-architecture.jpg)
+
+### Explanation
+- **Real/Simulated Health Data** — data is collected either from real devices or simulated sources.  
+- **Health Data Collection Service** — gathers all incoming data.  
+- **Kafka Layer** — streams health data through topics for asynchronous processing.  
+- **Java Backend Service** — consumes data, analyzes trends, and generates health recommendations.  
+- **Database & ML Modules** — store and process data for analytics and insights.  
+- **Mobile App** — displays personalized recommendations and receives updates in real time.
