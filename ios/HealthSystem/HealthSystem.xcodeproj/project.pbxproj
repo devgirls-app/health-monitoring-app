@@ -10,9 +10,22 @@
 		64D6564D2E9FEDED00C4265A /* HealthSystem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthSystem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		64D6565F2E9FEDEF00C4265A /* Exceptions for "HealthSystem" folder in "HealthSystem" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 64D6564C2E9FEDED00C4265A /* HealthSystem */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		64D6564F2E9FEDED00C4265A /* HealthSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				64D6565F2E9FEDEF00C4265A /* Exceptions for "HealthSystem" folder in "HealthSystem" target */,
+			);
 			path = HealthSystem;
 			sourceTree = "<group>";
 		};
