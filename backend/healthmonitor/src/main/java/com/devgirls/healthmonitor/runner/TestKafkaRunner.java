@@ -1,5 +1,4 @@
 package com.devgirls.healthmonitor.runner;
-
 import com.devgirls.healthmonitor.service.KafkaProducer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
