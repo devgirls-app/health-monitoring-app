@@ -1,5 +1,6 @@
 package com.devgirls.healthmonitor.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -15,13 +16,28 @@ public class Device {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long deviceId;
 
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
     private String type;
     private String osVersion;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference // <-- ДОБАВЛЕНО
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

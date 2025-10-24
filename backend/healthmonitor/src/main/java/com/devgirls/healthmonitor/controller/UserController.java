@@ -1,42 +1,43 @@
 package com.devgirls.healthmonitor.controller;
 
 import com.devgirls.healthmonitor.entity.User;
-import com.devgirls.healthmonitor.repository.UserRepository;
+import com.devgirls.healthmonitor.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("api/v1/users")
+@CrossOrigin(origins = "*")
 public class UserController {
-    private final UserRepository userRepository;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final UserService service;
+
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public User create(@RequestBody User user) {
+        return service.save(user);
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<User> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public User getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        User user = userRepository.findById(id).orElseThrow();
-        user.setName(userDetails.getName());
-        user.setAge(userDetails.getAge());
-        user.setGender(userDetails.getGender());
-        user.setHeight(userDetails.getHeight());
-        user.setWeight(userDetails.getWeight());
-        return userRepository.save(user);
+    public User update(@PathVariable Long id, @RequestBody User userDetails) {
+        return service.update(id, userDetails);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userRepository.deleteById(id);
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }
