@@ -1,5 +1,6 @@
 package com.devgirls.healthmonitor.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -9,18 +10,24 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Recommendations")
 public class Recommendations {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recId;
 
+    @Column(name = "recommendation_text")
     private String recommendationText;
+
     private String source;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @JsonBackReference // <-- ДОБАВЛЕНО
     private User user;
 }
