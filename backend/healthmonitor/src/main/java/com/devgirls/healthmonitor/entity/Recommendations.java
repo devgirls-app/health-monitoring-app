@@ -28,6 +28,7 @@ public class Recommendations {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    @JsonBackReference // <-- ДОБАВЛЕНО
+    @EqualsAndHashCode.Exclude
+    @JsonBackReference
     private User user;
 }
