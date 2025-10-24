@@ -39,15 +39,16 @@ public class RecommendationsService {
 
     public Recommendations fromDTO(RecommendationsDTO dto) {
         Recommendations rec = new Recommendations();
-        rec.setRecId(dto.getRecId());
+        // Always ignore recId for new records
         rec.setRecommendationText(dto.getRecText());
         rec.setSource(dto.getSource());
 
-        // получаем пользователя по userId
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found with id " + dto.getUserId()));
             rec.setUser(user);
+        } else {
+            throw new RuntimeException("UserId is required");
         }
 
         return rec;

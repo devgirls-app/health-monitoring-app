@@ -11,7 +11,6 @@ public class JacksonConfig {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        // Регистрируем модуль для поддержки Java 8 Date/Time
         mapper.registerModule(new JavaTimeModule());
         return mapper;
     }

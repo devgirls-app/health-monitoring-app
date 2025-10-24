@@ -41,6 +41,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @EqualsAndHashCode.Exclude
     private Set<Recommendations> recommendations;
 
     public long getId() {
