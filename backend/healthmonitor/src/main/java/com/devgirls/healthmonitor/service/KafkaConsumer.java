@@ -1,5 +1,6 @@
 package com.devgirls.healthmonitor.service;
 
+<<<<<<< HEAD
 import com.devgirls.healthmonitor.dto.HealthDataDTO;
 import com.devgirls.healthmonitor.entity.HealthData;
 import com.devgirls.healthmonitor.entity.User;
@@ -7,12 +8,15 @@ import com.devgirls.healthmonitor.repository.HealthDataRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+=======
+>>>>>>> origin/ios-full-restore
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaConsumer {
 
+<<<<<<< HEAD
     private final HealthDataRepository healthDataRepo;
     private final UserRepository userRepo;
     private final ObjectMapper objectMapper;
@@ -52,5 +56,15 @@ public class KafkaConsumer {
             System.out.println("Ошибка при обработке Kafka-сообщения: " + message);
             e.printStackTrace();
         }
+=======
+    @KafkaListener(topics = "health_data", groupId = "health-group")
+    public void consumeHealthData(String message) {
+        System.out.println("Received health_data: " + message);
+    }
+
+    @KafkaListener(topics = "alerts", groupId = "health-group")
+    public void consumeAlerts(String message) {
+        System.out.println("Received alert: " + message);
+>>>>>>> origin/ios-full-restore
     }
 }
