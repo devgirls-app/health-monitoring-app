@@ -1,10 +1,12 @@
 package com.devgirls.healthmonitor.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -27,8 +29,10 @@ public class HealthTrends {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "trend", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MLInsights> mlInsights;
+    @JsonManagedReference
+    private Set<MLInsights> mlInsights;
 }

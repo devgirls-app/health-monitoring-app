@@ -1,5 +1,6 @@
 package com.devgirls.healthmonitor.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -24,5 +25,6 @@ public class MLInsights {
 
     @ManyToOne
     @JoinColumn(name = "trend_id", nullable = false)
+    @JsonBackReference
     private HealthTrends trend;
 }

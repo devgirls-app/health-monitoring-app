@@ -9,12 +9,12 @@ DROP TABLE IF EXISTS MLInsights CASCADE;
 DROP TABLE IF EXISTS HealthTrends CASCADE;
 DROP TABLE IF EXISTS HealthData CASCADE;
 DROP TABLE IF EXISTS Device CASCADE;
-DROP TABLE IF EXISTS "User" CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 -- ==========================================================
 -- Table: User
 -- ==========================================================
-CREATE TABLE "User" (
+CREATE TABLE users (
                         user_id SERIAL PRIMARY KEY,
                         name VARCHAR(255),
                         age INT,
@@ -30,7 +30,7 @@ CREATE TABLE "User" (
 -- ==========================================================
 CREATE TABLE Device (
                         device_id SERIAL PRIMARY KEY,
-                        user_id INT REFERENCES "User"(user_id) ON DELETE CASCADE,
+                        user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
                         type VARCHAR(100),
                         os_version VARCHAR(100),
                         created_at TIMESTAMP DEFAULT NOW(),
@@ -42,7 +42,7 @@ CREATE TABLE Device (
 -- ==========================================================
 CREATE TABLE HealthData (
                             data_id SERIAL PRIMARY KEY,
-                            user_id INT REFERENCES "User"(user_id) ON DELETE CASCADE,
+                            user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
                             timestamp TIMESTAMP NOT NULL,
                             heart_rate INT,
                             steps INT,
@@ -58,7 +58,7 @@ CREATE TABLE HealthData (
 -- ==========================================================
 CREATE TABLE HealthTrends (
                               trend_id SERIAL PRIMARY KEY,
-                              user_id INT REFERENCES "User"(user_id) ON DELETE CASCADE,
+                              user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
                               avg_heart_rate DECIMAL(5,2),
                               daily_steps INT,
                               trend_label VARCHAR(255),
@@ -85,7 +85,7 @@ CREATE TABLE MLInsights (
 -- ==========================================================
 CREATE TABLE Recommendations (
                                  rec_id SERIAL PRIMARY KEY,
-                                 user_id INT REFERENCES "User"(user_id) ON DELETE CASCADE,
+                                 user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
                                  recommendation_text TEXT,
                                  source VARCHAR(50), -- e.g. "ML", "doctor", "system"
                                  created_at TIMESTAMP DEFAULT NOW()

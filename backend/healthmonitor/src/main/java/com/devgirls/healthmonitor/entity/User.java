@@ -1,12 +1,13 @@
 package com.devgirls.healthmonitor.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "\"User\"")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,18 +28,22 @@ public class User {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Device> devices;
+    @JsonManagedReference
+    private Set<Device> devices;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HealthData> healthData;
+    @JsonManagedReference
+    private Set<HealthData> healthData;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HealthTrends> healthTrends;
+    @JsonManagedReference
+    private Set<HealthTrends> healthTrends;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Recommendations> recommendations;
-    public long getId(){
+    @JsonManagedReference
+    private Set<Recommendations> recommendations;
+
+    public long getId() {
         return userId;
     }
 }
-
