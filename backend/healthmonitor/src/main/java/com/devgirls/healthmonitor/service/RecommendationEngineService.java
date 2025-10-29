@@ -6,6 +6,8 @@ import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class RecommendationEngineService {
 
@@ -25,7 +27,8 @@ public class RecommendationEngineService {
             recommendationText = "⚠️ High heart rate detected. Try resting and staying hydrated.";
         } else if (data.getSteps() != null && data.getSteps() < 3000) {
             recommendationText = "👟 Low activity detected. Try walking at least 5000 steps today.";
-        } else if (data.getSleepHours() != null && data.getSleepHours() < 5) {
+        } else if (data.getSleepHours() != null
+                && data.getSleepHours().compareTo(BigDecimal.valueOf(5)) < 0) {
             recommendationText = "😴 You slept less than 5 hours. Aim for 7–8 hours of rest.";
         }
 

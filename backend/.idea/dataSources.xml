@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="healthdb@localhost" uuid="43f92034-92d3-4a86-9c19-705ea6c5ddd5">
+    <data-source source="LOCAL" name="healthdb@localhost" uuid="533b6a8c-7e46-420d-a6cc-81ac536b7c05">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/healthdb?createDatabaseIfNotExist=true</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/healthdb</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
