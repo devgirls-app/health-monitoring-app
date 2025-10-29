@@ -18,7 +18,9 @@ import java.util.Optional;
 public class AggregationService {
     private final HealthDataRepository healthDataRepository;
     private final DailyAggregatesRepository dailyAggregatesRepository;
-    private final UserRepository userRepository; // существующий
+    private final UserRepository userRepository;
+    private final RecommendationEngineService recommendationEngineService;
+        // существующий
 
     private BigDecimal toBig(Object o) {
         if (o == null) return BigDecimal.ZERO;
@@ -64,7 +66,10 @@ public class AggregationService {
         agg.setDSteps7d(null);
         agg.setDSleep7d(null);
 
-        return dailyAggregatesRepository.save(agg);
+//        return dailyAggregatesRepository.save(agg);
+        var saved = dailyAggregatesRepository.save(agg);
+        recommendationEngineService.evaluate(saved);
+        return saved;
     }
 
     public DailyAggregatesDTO convertToDTO(DailyAggregates agg) {
