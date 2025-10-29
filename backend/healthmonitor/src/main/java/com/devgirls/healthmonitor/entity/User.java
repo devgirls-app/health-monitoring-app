@@ -3,6 +3,8 @@ package com.devgirls.healthmonitor.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -16,15 +18,23 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "name")
     private String name;
+    @Column(name = "age")
     private Integer age;
+    @Column(name = "gender")
     private String gender;
-    private Double height;
-    private Double weight;
+    @Column(name = "height")
+    private BigDecimal height;
+    @Column(name = "weight")
+    private BigDecimal weight;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

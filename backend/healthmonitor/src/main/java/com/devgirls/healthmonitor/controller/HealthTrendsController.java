@@ -7,6 +7,7 @@ import com.devgirls.healthmonitor.repository.UserRepository;
 import com.devgirls.healthmonitor.service.HealthTrendsService;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public class HealthTrendsController {
         HealthTrendsDTO dto = new HealthTrendsDTO();
         dto.setTrendId(entity.getTrendId());
         dto.setUserId(entity.getUser().getUserId());
-        dto.setAvgHeartRate(entity.getAvgHeartRate());
+        dto.setAvgHeartRate(entity.getAvgHeartRate() != null ? entity.getAvgHeartRate().doubleValue() : null);
         dto.setDailySteps(entity.getDailySteps());
         dto.setTrendLabel(entity.getTrendLabel());
         dto.setDate(entity.getDate());
@@ -78,7 +79,7 @@ public class HealthTrendsController {
         return HealthTrends.builder()
                 .trendId(dto.getTrendId())
                 .user(user)
-                .avgHeartRate(dto.getAvgHeartRate())
+                .avgHeartRate(dto.getAvgHeartRate() != null ? BigDecimal.valueOf(dto.getAvgHeartRate()) : null)
                 .dailySteps(dto.getDailySteps())
                 .trendLabel(dto.getTrendLabel())
                 .date(dto.getDate())

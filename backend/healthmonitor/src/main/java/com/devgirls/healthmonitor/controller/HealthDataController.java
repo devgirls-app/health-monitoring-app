@@ -7,6 +7,7 @@ import com.devgirls.healthmonitor.repository.UserRepository;
 import com.devgirls.healthmonitor.service.HealthDataService;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -48,8 +49,8 @@ public class HealthDataController {
                 .timestamp(dto.getTimestamp())
                 .heartRate(dto.getHeartRate())
                 .steps(dto.getSteps())
-                .calories(dto.getCalories())
-                .sleepHours(dto.getSleepHours())
+                .calories(dto.getCalories() != null ? BigDecimal.valueOf(dto.getCalories()) : null)
+                .sleepHours(dto.getSleepHours() != null ? BigDecimal.valueOf(dto.getSleepHours()) : null)
                 .source(dto.getSource())
                 .build();
 
