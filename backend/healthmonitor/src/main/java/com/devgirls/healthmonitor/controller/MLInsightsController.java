@@ -7,6 +7,7 @@ import com.devgirls.healthmonitor.repository.HealthTrendsRepository;
 import com.devgirls.healthmonitor.service.MLInsightsService;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class MLInsightsController {
         dto.setInsightId(entity.getInsightId());
         dto.setTrendId(entity.getTrend().getTrendId());
         dto.setPredictionType(entity.getPredictionType());
-        dto.setConfidenceScore(entity.getConfidenceScore());
+        dto.setConfidenceScore(entity.getConfidenceScore() != null ? entity.getConfidenceScore().doubleValue() : null);
         dto.setResultDescription(entity.getResultDescription());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
@@ -74,7 +75,7 @@ public class MLInsightsController {
                 .insightId(dto.getInsightId())
                 .trend(trend)
                 .predictionType(dto.getPredictionType())
-                .confidenceScore(dto.getConfidenceScore())
+                .confidenceScore(dto.getConfidenceScore() != null ? BigDecimal.valueOf(dto.getConfidenceScore()) : null)
                 .resultDescription(dto.getResultDescription())
                 .createdAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : java.time.LocalDateTime.now())
                 .updatedAt(java.time.LocalDateTime.now())

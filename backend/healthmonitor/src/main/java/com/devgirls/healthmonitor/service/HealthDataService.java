@@ -57,15 +57,15 @@ public class HealthDataService {
                 .timestamp(data.getTimestamp())
                 .heartRate(data.getHeartRate())
                 .steps(data.getSteps())
-                .calories(data.getCalories())
-                .sleepHours(data.getSleepHours())
+                .calories(data.getCalories() != null ? data.getCalories().doubleValue() : null)
+                .sleepHours(data.getSleepHours() != null ? data.getSleepHours().doubleValue() : null)
                 .source(data.getSource())
                 .build();
     }
 
     // Fetch by user
     public List<HealthDataDTO> findByUserId(Long userId) {
-        return healthDataRepository.findByUserUserId(userId)
+        return healthDataRepository.findAllByUser_UserId(userId)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

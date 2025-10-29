@@ -1,0 +1,8 @@
+{
+  "name": "stress_level",
+  "version": "v1",
+  "features_order": [
+    "hr_mean","hr_max","steps_total","calories_total",
+    "sleep_hours_total","z_hr_mean","z_steps","d_steps_7d","d_sleep_7d"
+  ]
+}
