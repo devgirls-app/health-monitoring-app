@@ -6,7 +6,9 @@ import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.RecommendationsRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,5 +72,20 @@ public class RecommendationsService {
 
     public List<RecommendationsDTO> toDTOList(List<Recommendations> list) {
         return list.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Recommendations create(Long userId, String text, String source, String severity) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        Recommendations rec = new Recommendations();
+        rec.setUser(user);
+        rec.setRecommendationText(text);
+        rec.setSource(source);      // "rules"
+        rec.setSeverity(severity);  // "advisory" | "warning" | "critical"
+        rec.setCreatedAt(LocalDateTime.now());
+
+        return repo.save(rec);
     }
 }
