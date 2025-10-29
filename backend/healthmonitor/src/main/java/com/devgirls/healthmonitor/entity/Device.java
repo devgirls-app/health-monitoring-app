@@ -10,24 +10,32 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "device")
 public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "device_id")
     private Long deviceId;
 
     @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
+    @Column(name = "type")
     private String type;
+
+    @Column(name = "os_version")
     private String osVersion;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference // <-- ДОБАВЛЕНО
+    @JsonBackReference
     private User user;
 
     @PrePersist

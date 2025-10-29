@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class KafkaConsumer {
 
@@ -41,8 +43,8 @@ public class KafkaConsumer {
                     .timestamp(dto.getTimestamp())
                     .heartRate(dto.getHeartRate())
                     .steps(dto.getSteps())
-                    .calories(dto.getCalories())
-                    .sleepHours(dto.getSleepHours())
+                    .calories(dto.getCalories() != null ? BigDecimal.valueOf(dto.getCalories()) : null)
+                    .sleepHours(dto.getSleepHours() != null ? BigDecimal.valueOf(dto.getSleepHours()) : null)
                     .source(dto.getSource())
                     .user(user)
                     .build();
