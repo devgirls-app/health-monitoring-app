@@ -25,6 +25,9 @@ public class DailyAggregates {
     @JsonBackReference
     private User user;
 
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
@@ -60,4 +63,9 @@ public class DailyAggregates {
 
     @Column(name = "updated_at", insertable=false, updatable=false)
     private LocalDateTime updatedAt;
+
+    public Long getUserId() {
+        if (user != null) return user.getUserId();
+        return userId;
+    }
 }
