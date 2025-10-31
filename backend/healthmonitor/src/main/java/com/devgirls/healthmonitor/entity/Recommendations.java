@@ -33,4 +33,7 @@ public class Recommendations {
     @EqualsAndHashCode.Exclude
     @JsonBackReference
     private User user;
+
+    @Column(name = "severity")
+    private String severity;
 }
