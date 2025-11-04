@@ -1,4 +1,8 @@
 .DS_Store
 *.xcuserdatad/
 .idea/
+# CocoaPods
+Pods/
+ios/HealthSystem/Pods/
+ios/HealthSystem/HealthSystem.xcworkspace/
 
