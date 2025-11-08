@@ -2,8 +2,10 @@ com/devgirls/healthmonitor/dto/RecommendationsDTO.class
 com/devgirls/healthmonitor/service/HealthTrendsService.class
 com/devgirls/healthmonitor/service/UserService.class
 com/devgirls/healthmonitor/dto/UserDTO.class
+com/devgirls/healthmonitor/service/MLInferenceService$1.class
 com/devgirls/healthmonitor/entity/HealthTrends.class
 com/devgirls/healthmonitor/service/KafkaConsumer.class
+com/devgirls/healthmonitor/controller/TestMLController.class
 com/devgirls/healthmonitor/entity/Recommendations.class
 com/devgirls/healthmonitor/kafka/consumer/HealthDataConsumer.class
 com/devgirls/healthmonitor/service/HealthDataService.class
@@ -58,6 +60,7 @@ com/devgirls/healthmonitor/entity/DailyAggregates$DailyAggregatesBuilder.class
 com/devgirls/healthmonitor/dto/DeviceDTO.class
 com/devgirls/healthmonitor/controller/UserController.class
 com/devgirls/healthmonitor/entity/User.class
+com/devgirls/healthmonitor/service/MLInferenceService.class
 com/devgirls/healthmonitor/entity/MLInsights$MLInsightsBuilder.class
 com/devgirls/healthmonitor/HealthmonitorApplication.class
 com/devgirls/healthmonitor/dto/DeviceDTO$DeviceDTOBuilder.class

@@ -57,16 +57,17 @@ services:
   app:
     build: .
     depends_on:
-      postgres: # Use the more specific healthcheck condition
+      postgres:
         condition: service_healthy
       kafka:
         condition: service_started
     ports:
       - "8080:8080"
-    # Environment variables are good, they override application.yaml
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/healthdb
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JAVA_TOOL_OPTIONS: "-Xmx1g"   # JVM: максимум 1GB под хип
+    mem_limit: "6g"                   # Docker: контейнеру даём до 6GB RAM
     networks:
       - health-network
 

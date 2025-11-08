@@ -1,0 +1,13 @@
+{
+  "features": [
+    "steps_total",
+    "calories_total",
+    "sleep_hours_total",
+    "age",
+    "gender_numeric",
+    "height_cm",
+    "weight_kg",
+    "d_sleep_7d",
+    "d_steps_7d"
+  ]
+}

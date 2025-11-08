@@ -5,11 +5,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class RecommendationsDTO {
-
     private Long recId;
-    private String recText;
+    private String recommendationText;
     private String source;
     private Long userId;
-
-    private LocalDateTime timestamp;
+    private String severity;
+    private LocalDateTime createdAt;
 }
