@@ -42,7 +42,7 @@ public class RecommendationsService {
     public Recommendations fromDTO(RecommendationsDTO dto) {
         Recommendations rec = new Recommendations();
         // Always ignore recId for new records
-        rec.setRecommendationText(dto.getRecText());
+        rec.setRecommendationText(dto.getRecommendationText());
         rec.setSource(dto.getSource());
 
         if (dto.getUserId() != null) {
@@ -59,9 +59,9 @@ public class RecommendationsService {
     public RecommendationsDTO toDTO(Recommendations rec) {
         RecommendationsDTO dto = new RecommendationsDTO();
         dto.setRecId(rec.getRecId());
-        dto.setRecText(rec.getRecommendationText());
+        dto.setRecommendationText(rec.getRecommendationText());
         dto.setSource(rec.getSource());
-        dto.setTimestamp(rec.getCreatedAt());
+        dto.setCreatedAt(rec.getCreatedAt());
 
         if (rec.getUser() != null) {
             dto.setUserId(rec.getUser().getUserId());
