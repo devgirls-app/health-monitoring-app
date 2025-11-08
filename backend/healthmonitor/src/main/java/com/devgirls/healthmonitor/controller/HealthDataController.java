@@ -4,6 +4,7 @@ import com.devgirls.healthmonitor.dto.HealthDataDTO;
 import com.devgirls.healthmonitor.entity.HealthData;
 import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.UserRepository;
+import com.devgirls.healthmonitor.service.AggregationService; // <--- 1. Импорт
 import com.devgirls.healthmonitor.service.HealthDataService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,14 @@ public class HealthDataController {
 
     private final HealthDataService healthDataService;
     private final UserRepository userRepository;
+    private final AggregationService aggregationService;
 
-    public HealthDataController(HealthDataService healthDataService, UserRepository userRepository) {
+    public HealthDataController(HealthDataService healthDataService,
+                                UserRepository userRepository,
+                                AggregationService aggregationService) {
         this.healthDataService = healthDataService;
         this.userRepository = userRepository;
+        this.aggregationService = aggregationService;
     }
 
     // GET /healthdata → all records
@@ -54,8 +59,14 @@ public class HealthDataController {
                 .source(dto.getSource())
                 .build();
 
-
         HealthData saved = healthDataService.save(data);
+
+        if (saved.getUser() != null && saved.getTimestamp() != null) {
+            aggregationService.aggregateDay(
+                    saved.getUser().getUserId(),
+                    saved.getTimestamp().toLocalDate()
+            );
+        }
         return healthDataService.convertToDTO(saved);
     }
 }

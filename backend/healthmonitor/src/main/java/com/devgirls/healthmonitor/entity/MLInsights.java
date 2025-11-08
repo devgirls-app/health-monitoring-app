@@ -33,7 +33,7 @@ public class MLInsights {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @ManyToOne
-    @JoinColumn(name = "trend_id", nullable = false)
+    @JoinColumn(name = "trend_id", nullable = true)
     @JsonBackReference
     private HealthTrends trend;
 

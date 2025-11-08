@@ -20,7 +20,9 @@ public class AggregationService {
     private final DailyAggregatesRepository dailyAggregatesRepository;
     private final UserRepository userRepository;
     private final RecommendationEngineService recommendationEngineService;
-        // существующий
+    private final MLInferenceService mlInferenceService;
+    private final MLInsightsRepository mlInsightsRepository;
+    private final ModelRegistryRepository modelRegistryRepository;
 
     private BigDecimal toBig(Object o) {
         if (o == null) return BigDecimal.ZERO;
@@ -68,7 +70,34 @@ public class AggregationService {
 
 //        return dailyAggregatesRepository.save(agg);
         var saved = dailyAggregatesRepository.save(agg);
-        recommendationEngineService.evaluate(saved);
+
+        try {
+            double prob = mlInferenceService.predictFatigue(saved);
+
+            // find active model for reference
+            ModelRegistry model = modelRegistryRepository
+                    .findFirstByNameAndIsActiveTrueOrderByCreatedAtDesc("fatigue_risk")
+                    .orElse(null);
+
+            MLInsights insight = MLInsights.builder()
+                    .aggregate(saved) // make sure MLInsights has a field: @ManyToOne DailyAggregates agg;
+                    .predictionType("fatigue_risk")
+                    .probability(BigDecimal.valueOf(prob))
+                    .confidenceScore(BigDecimal.valueOf(prob)) // or something else
+                    .resultDescription(String.format("Fatigue risk: %.2f", prob))
+                    .model(model)
+                    .build();
+
+            mlInsightsRepository.save(insight);
+
+            // call rules + ML-based recommendations
+            recommendationEngineService.evaluate(saved, prob);
+
+        } catch (Exception e) {
+            // Do not break the request if ML fails
+            e.printStackTrace();
+        }
+
         return saved;
     }
 

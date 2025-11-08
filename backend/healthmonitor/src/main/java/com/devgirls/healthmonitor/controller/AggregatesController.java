@@ -32,7 +32,6 @@ public class AggregatesController {
         return ResponseEntity.ok(dto);
     }
 
-    // ✅ Новый метод GET (только чтение, без пересчёта)
     @GetMapping("/{userId}/{date}")
     public ResponseEntity<?> getOne(@PathVariable Long userId, @PathVariable LocalDate date) {
         return aggSvc.findExistingDto(userId, date)
@@ -41,7 +40,6 @@ public class AggregatesController {
                         .body("Daily aggregate not found for userId=" + userId + ", date=" + date));
     }
 
-    // (опционально: список по диапазону)
     @GetMapping("/{userId}")
     public List<DailyAggregates> list(@PathVariable Long userId,
                                       @RequestParam LocalDate from,

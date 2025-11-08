@@ -27,9 +27,7 @@ public class RecommendationEngineService {
     public void analyzeAndGenerate(HealthData data) {
         String recommendationText = null;
 
-        if (data.getHeartRate() != null && data.getHeartRate() > 120) {
-            recommendationText = "⚠️ High heart rate detected. Try resting and staying hydrated.";
-        } else if (data.getSteps() != null && data.getSteps() < 3000) {
+        if (data.getSteps() != null && data.getSteps() < 3000) {
             recommendationText = "👟 Low activity detected. Try walking at least 5000 steps today.";
         } else if (data.getSleepHours() != null
                 && data.getSleepHours().compareTo(BigDecimal.valueOf(5)) < 0) {
@@ -41,7 +39,6 @@ public class RecommendationEngineService {
             rec.setRecommendationText(recommendationText);
             rec.setSource("RuleEngine");
 
-            // Use data.getUser() instead of dto.getUserId()
             User user = data.getUser();
             if (user != null) {
                 rec.setUser(user);
@@ -54,36 +51,54 @@ public class RecommendationEngineService {
         }
     }
 
-    public void evaluate(DailyAggregates agg) {
+    /**
+     * Этот метод вызывается ПОСЛЕ аггрегации и ПОСЛЕ запуска ML-модели.
+     * Он использует и агрегаты (agg), и предсказание (prob) для правил.
+     */
+    public void evaluate(DailyAggregates agg, double prob) {
         if (agg == null) return;
 
-        Long userId = agg.getUser() != null ? agg.getUser().getUserId() : agg.getUserId();
+        Long userId = agg.getUserId();
         if (userId == null) return;
 
-        // --- Правило #1: мало сна + высокий z-HR ---
-        if (agg.getSleepHoursTotal() != null && agg.getZHrMean() != null
-                && agg.getSleepHoursTotal().doubleValue() < 6.0
-                && agg.getZHrMean().doubleValue() > 0.8) {
+        if (agg.getDSleep7d() != null && agg.getDSteps7d() != null
+                && agg.getDSleep7d().doubleValue() < -0.8   // Сон ЗНАЧИТЕЛЬНО ниже нормы
+                && agg.getDSteps7d().doubleValue() > 0.8) { // Активность ЗНАЧИТЕЛЬНО выше нормы
 
             recommendationsService.create(
                     userId,
-                    "Сон ниже нормы и пульс выше — сделайте 10-мин дыхательное упражнение и ложитесь раньше.",
+                    "Your sleep is well below normal while your activity is high. This pattern leads to fatigue. Remember to rest.",
                     "rules",
                     "warning"
             );
         }
 
-        // --- Правило #2: два дня подряд < 3000 шагов ---
-        Integer todaySteps = agg.getStepsTotal() != null ? agg.getStepsTotal() : 0;
         Integer yesterdaySteps =
                 dailyAggregatesRepository.findStepsTotal(userId, agg.getDate().minusDays(1));
 
         if ((agg.getStepsTotal() != null && agg.getStepsTotal() < 3000)
                 && (yesterdaySteps != null && yesterdaySteps < 3000)) {
+
             recommendationsService.create(
                     userId,
-                    "Два дня низкой активности — пройдитесь 15–20 минут лёгким шагом.",
+                    "Two consecutive days of low activity — take a 15–20 minute light walk.",
                     "rules",
+                    "advisory"
+            );
+        }
+
+        if (prob > 0.8) {
+            recommendationsService.create(
+                    userId,
+                    "High fatigue risk detected by the ML model — take a rest or avoid heavy workouts today.",
+                    "ml_model",
+                    "warning"
+            );
+        } else if (prob > 0.6) {
+            recommendationsService.create(
+                    userId,
+                    "Moderate fatigue risk detected — take short breaks and ensure enough sleep tonight.",
+                    "ml_model",
                     "advisory"
             );
         }

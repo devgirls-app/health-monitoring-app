@@ -65,7 +65,7 @@ public class DailyAggregates {
     private LocalDateTime updatedAt;
 
     public Long getUserId() {
-        if (user != null) return user.getUserId();
+        if (user != null) return user.getId();
         return userId;
     }
 }
