@@ -1,6 +1,4 @@
 {
-  "name": "fatigue_risk_v1",
-  "version": "1.0.0",
   "features": [
     "steps_total",
     "calories_total",

@@ -115,22 +115,20 @@ def create_fatigue_model_dataset(csv_path: str) -> pd.DataFrame:
 # In[ ]:
 
 
-def train_fatigue_model(csv_path=None):
+def train_fatigue_model(data_csv_path, model_export_dir):
     """
     Train the fatigue prediction model, evaluate, and export results.
     """
     # Paths
-    if csv_path is None:
-        csv_path = "/Users/elinakarimova/health-monitoring-app/ml/health_fitness_dataset.csv"
-
-    export_dir = Path("/Users/elinakarimova/health-monitoring-app/ml/export")
+    export_dir = Path(model_export_dir) 
     export_dir.mkdir(exist_ok=True)
+    
     onnx_path = export_dir / "fatigue_model_v1.onnx"
     features_json = export_dir / "fatigue_model_v1_features.json"
     metrics_json = export_dir / "fatigue_model_v1_metrics.json"
 
     print("=== Step 1: Data preparation ===")
-    df_ready = create_fatigue_model_dataset(csv_path)
+    df_ready = create_fatigue_model_dataset(data_csv_path)
     if df_ready.empty:
         print("❌ Dataset is empty. Cannot continue.")
         return None, {}
@@ -171,7 +169,7 @@ def train_fatigue_model(csv_path=None):
 
     # --- Random Forest ---
     rf = RandomForestClassifier(
-        n_estimators=300, min_samples_leaf=5,
+        n_estimators=100, min_samples_leaf=5,
         random_state=42, n_jobs=-1, class_weight="balanced_subsample"
     )
     rf.fit(X_train, y_train)
@@ -191,7 +189,7 @@ def train_fatigue_model(csv_path=None):
     print("\n=== Step 5: Export ===")
     try:
         initial_type = [('input', FloatTensorType([None, len(FEATURES)]))]
-        onx = convert_sklearn(best["model"], initial_types=initial_type)
+        onx = convert_sklearn(best["model"], initial_types=initial_type, options={'zipmap': False})
         with open(onnx_path, "wb") as f:
             f.write(onx.SerializeToString())
         print(f"✅ Model exported to {onnx_path}")

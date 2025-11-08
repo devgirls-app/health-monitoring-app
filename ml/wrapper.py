@@ -10,13 +10,11 @@ import sys
 from pathlib import Path
 
 # Добавляем путь к папке models
-sys.path.append(str(Path("/Users/elinakarimova/health-monitoring-app/ml/models")))
+CURRENT_DIR = Path(__file__).parent
+MODELS_DIR = CURRENT_DIR / "models"
+sys.path.append(str(MODELS_DIR))
 import pandas as pd
 import joblib
-
-
-# Add current folder to sys.path so we can import models
-sys.path.append(str(Path().resolve() / "models"))
 
 # Imports from your models (assuming .py files)
 from models.fatigue_risk_model import create_fatigue_model_dataset, train_fatigue_model
@@ -43,7 +41,7 @@ df_fatigue.head()
 
 # wrapper.ipynb - Cell 3
 print("=== Training fatigue risk model ===")
-fatigue_model, fatigue_metrics = train_fatigue_model()
+fatigue_model, fatigue_metrics = train_fatigue_model(data_csv_path=CSV_PATH, model_export_dir=EXPORT_DIR)
 
 print("\nFatigue model metrics:")
 for k, v in fatigue_metrics.items():
