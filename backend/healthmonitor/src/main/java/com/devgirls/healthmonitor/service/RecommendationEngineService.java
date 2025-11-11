@@ -61,9 +61,10 @@ public class RecommendationEngineService {
         Long userId = agg.getUserId();
         if (userId == null) return;
 
+        // --- Rule-based recommendation #1: Low sleep + high HR ---
         if (agg.getDSleep7d() != null && agg.getDSteps7d() != null
-                && agg.getDSleep7d().doubleValue() < -0.8   // Сон ЗНАЧИТЕЛЬНО ниже нормы
-                && agg.getDSteps7d().doubleValue() > 0.8) { // Активность ЗНАЧИТЕЛЬНО выше нормы
+                && agg.getDSleep7d().doubleValue() < -0.8   // Sleep significantly below normal
+                && agg.getDSteps7d().doubleValue() > 0.8) { // Activity significantly above normal
 
             recommendationsService.create(
                     userId,
@@ -73,6 +74,7 @@ public class RecommendationEngineService {
             );
         }
 
+        // --- Rule-based recommendation #2: Two days of low steps ---
         Integer yesterdaySteps =
                 dailyAggregatesRepository.findStepsTotal(userId, agg.getDate().minusDays(1));
 
@@ -87,20 +89,54 @@ public class RecommendationEngineService {
             );
         }
 
-        if (prob > 0.8) {
-            recommendationsService.create(
-                    userId,
-                    "High fatigue risk detected by the ML model — take a rest or avoid heavy workouts today.",
-                    "ml_model",
-                    "warning"
-            );
-        } else if (prob > 0.6) {
-            recommendationsService.create(
-                    userId,
-                    "Moderate fatigue risk detected — take short breaks and ensure enough sleep tonight.",
-                    "ml_model",
-                    "advisory"
-            );
+        // --- ML-based dynamic recommendations ---
+        String recText;
+        String severity;
+
+        // Randomize text selection for more natural variation
+        java.util.Random rand = new java.util.Random();
+
+        java.util.List<String> lowTexts = java.util.List.of(
+                "You're doing well today! Keep maintaining balanced sleep and activity.",
+                "Energy levels look stable — stay consistent with your daily routine.",
+                "Everything looks great — keep up your healthy habits!"
+        );
+
+        java.util.List<String> moderateTexts = java.util.List.of(
+                "Your fatigue risk is moderate. Try taking short breaks and ensure at least 7 hours of sleep tonight.",
+                "You might be slightly overworked. Stay hydrated and avoid intense exercise today.",
+                "Moderate fatigue detected — take some rest after work and go to bed early."
+        );
+
+        java.util.List<String> highTexts = java.util.List.of(
+                "High fatigue risk detected — take a rest day or reduce physical load.",
+                "You’re showing signs of fatigue. Prioritize rest, proper sleep, and light meals today.",
+                "Severe fatigue risk — avoid stress and physical exertion, and focus on recovery."
+        );
+
+        // --- Choose message and severity based on probability ---
+        if (prob <= 0.4) {
+            recText = lowTexts.get(rand.nextInt(lowTexts.size()));
+            severity = "advisory";
+        } else if (prob <= 0.7) {
+            recText = moderateTexts.get(rand.nextInt(moderateTexts.size()));
+            severity = "warning";
+        } else {
+            recText = highTexts.get(rand.nextInt(highTexts.size()));
+            severity = "critical";
         }
+
+        recommendationsService.create(
+                userId,
+                recText,
+                "ml_model",
+                severity
+        );
+
+        // Log output for debugging
+        System.out.printf(
+                "🧠 [ML Recommendation] user=%d | prob=%.3f | severity=%s | text=%s%n",
+                userId, prob, severity, recText
+        );
     }
 }
