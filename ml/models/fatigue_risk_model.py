@@ -211,6 +211,9 @@ def train_fatigue_model(data_csv_path, model_export_dir):
 
 
 if __name__ == "__main__":
-    model, metrics = train_fatigue_model()
+    model, metrics = train_fatigue_model(
+        data_csv_path="health_fitness_dataset.csv",
+        model_export_dir="export"
+    )
     print("\n✅ Model training finished successfully.")
-
+    
