@@ -39,62 +39,99 @@ public class AggregationService {
         var start = Timestamp.valueOf(day.atStartOfDay());
         var end = Timestamp.valueOf(day.plusDays(1).atStartOfDay());
 
-        // выполняем нативный SQL
         Map<String, Object> m = healthDataRepository.aggregateRange(userId, start, end);
 
-        // Используем безопасное извлечение
-        BigDecimal steps      = toBig(m.get("steps"));      // ← БЫЛО Integer, стало BigDecimal
+        BigDecimal steps      = toBig(m.get("steps"));
         BigDecimal calories   = toBig(m.get("calories"));
         BigDecimal hrMean     = toBig(m.get("hr_mean"));
         BigDecimal sleepHours = toBig(m.get("sleep"));
-        Integer hrMax = m.get("hr_max") != null ? ((Number)m.get("hr_max")).intValue() : 0;
+        Integer hrMax = m.get("hr_max") != null ? ((Number) m.get("hr_max")).intValue() : 0;
 
-        // Получаем или создаём DailyAggregates
         DailyAggregates agg = dailyAggregatesRepository
                 .findByUser_UserIdAndDate(userId, day)
                 .orElseGet(DailyAggregates::new);
 
         agg.setUser(user);
         agg.setDate(day);
-        agg.setStepsTotal(steps.intValue());        // если поле Integer
+        agg.setStepsTotal(steps != null ? steps.intValue() : null);
         agg.setCaloriesTotal(calories);
         agg.setHrMean(hrMean);
         agg.setHrMax(hrMax);
         agg.setSleepHoursTotal(sleepHours);
 
-        // остальные поля пока null
+        LocalDate from = day.minusDays(6);
+        LocalDate to = day.minusDays(1);
+
+        var prevAggs = dailyAggregatesRepository
+                .findByUser_UserIdAndDateBetweenOrderByDateAsc(userId, from, to);
+
+        double sumSteps = 0.0;
+        int countSteps = 0;
+
+        double sumSleep = 0.0;
+        int countSleep = 0;
+
+        for (DailyAggregates prev : prevAggs) {
+            if (prev.getStepsTotal() != null) {
+                sumSteps += prev.getStepsTotal();
+                countSteps++;
+            }
+            if (prev.getSleepHoursTotal() != null) {
+                sumSleep += prev.getSleepHoursTotal().doubleValue();
+                countSleep++;
+            }
+        }
+
+        if (steps != null) {
+            sumSteps += steps.doubleValue();
+            countSteps++;
+        }
+        if (sleepHours != null) {
+            sumSleep += sleepHours.doubleValue();
+            countSleep++;
+        }
+
+        Double meanSteps = (countSteps > 0) ? (sumSteps / countSteps) : null;
+        Double meanSleep = (countSleep > 0) ? (sumSleep / countSleep) : null;
+
+        BigDecimal dSteps7d = null;
+        BigDecimal dSleep7d = null;
+
+        if (steps != null && meanSteps != null) {
+            dSteps7d = BigDecimal.valueOf(steps.doubleValue() - meanSteps);
+        }
+        if (sleepHours != null && meanSleep != null) {
+            dSleep7d = BigDecimal.valueOf(sleepHours.doubleValue() - meanSleep);
+        }
+
         agg.setZHrMean(null);
         agg.setZSteps(null);
-        agg.setDSteps7d(null);
-        agg.setDSleep7d(null);
+        agg.setDSteps7d(dSteps7d);
+        agg.setDSleep7d(dSleep7d);
 
-//        return dailyAggregatesRepository.save(agg);
         var saved = dailyAggregatesRepository.save(agg);
 
         try {
             double prob = mlInferenceService.predictFatigue(saved);
 
-            // find active model for reference
             ModelRegistry model = modelRegistryRepository
                     .findFirstByNameAndIsActiveTrueOrderByCreatedAtDesc("fatigue_risk")
                     .orElse(null);
 
             MLInsights insight = MLInsights.builder()
-                    .aggregate(saved) // make sure MLInsights has a field: @ManyToOne DailyAggregates agg;
+                    .aggregate(saved)
                     .predictionType("fatigue_risk")
                     .probability(BigDecimal.valueOf(prob))
-                    .confidenceScore(BigDecimal.valueOf(prob)) // or something else
+                    .confidenceScore(BigDecimal.valueOf(prob)) // при желании можно завести отдельную метрику
                     .resultDescription(String.format("Fatigue risk: %.2f", prob))
                     .model(model)
                     .build();
 
             mlInsightsRepository.save(insight);
 
-            // call rules + ML-based recommendations
             recommendationEngineService.evaluate(saved, prob);
 
         } catch (Exception e) {
-            // Do not break the request if ML fails
             e.printStackTrace();
         }
 

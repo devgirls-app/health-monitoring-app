@@ -4,13 +4,12 @@ com/devgirls/healthmonitor/service/UserService.class
 com/devgirls/healthmonitor/dto/UserDTO.class
 com/devgirls/healthmonitor/service/MLInferenceService$1.class
 com/devgirls/healthmonitor/entity/HealthTrends.class
-com/devgirls/healthmonitor/service/KafkaConsumer.class
 com/devgirls/healthmonitor/controller/TestMLController.class
 com/devgirls/healthmonitor/entity/Recommendations.class
-com/devgirls/healthmonitor/kafka/consumer/HealthDataConsumer.class
 com/devgirls/healthmonitor/service/HealthDataService.class
 com/devgirls/healthmonitor/repository/MLInsightsRepository.class
 com/devgirls/healthmonitor/entity/UserStats.class
+com/devgirls/healthmonitor/kafka/consumer/HealthDataKafkaConsumer.class
 com/devgirls/healthmonitor/repository/KafkaLogsRepository.class
 com/devgirls/healthmonitor/service/AggregationService.class
 com/devgirls/healthmonitor/repository/DeviceRepository.class
@@ -24,7 +23,6 @@ com/devgirls/healthmonitor/controller/RecommendationsController.class
 com/devgirls/healthmonitor/entity/User$UserBuilder.class
 com/devgirls/healthmonitor/dto/HealthDataDTO.class
 com/devgirls/healthmonitor/entity/HealthData$HealthDataBuilder.class
-com/devgirls/healthmonitor/runner/TestKafkaRunner.class
 com/devgirls/healthmonitor/dto/HealthDataDTO$HealthDataDTOBuilder.class
 com/devgirls/healthmonitor/entity/Recommendations$RecommendationsBuilder.class
 com/devgirls/healthmonitor/dto/KafkaLogsDTO.class
@@ -36,7 +34,6 @@ com/devgirls/healthmonitor/service/RecommendationEngineService.class
 com/devgirls/healthmonitor/service/RecommendationsService.class
 com/devgirls/healthmonitor/entity/HealthData.class
 com/devgirls/healthmonitor/service/MLInsightsService.class
-com/devgirls/healthmonitor/service/KafkaProducer.class
 com/devgirls/healthmonitor/service/DeviceService.class
 com/devgirls/healthmonitor/repository/HealthTrendsRepository.class
 com/devgirls/healthmonitor/kafka/config/JacksonConfig.class
@@ -44,9 +41,11 @@ com/devgirls/healthmonitor/kafka/config/KafkaTopicConfig.class
 com/devgirls/healthmonitor/entity/DayLabels$DayLabelsBuilder.class
 com/devgirls/healthmonitor/entity/KafkaLogs.class
 com/devgirls/healthmonitor/controller/MLInsightsController.class
+com/devgirls/healthmonitor/controller/PhoneHealthDataController.class
 com/devgirls/healthmonitor/repository/UserStatsRepository.class
 com/devgirls/healthmonitor/repository/UserRepository.class
 com/devgirls/healthmonitor/entity/Device.class
+com/devgirls/healthmonitor/controller/WeeklySummaryController.class
 com/devgirls/healthmonitor/repository/ModelRegistryRepository.class
 com/devgirls/healthmonitor/entity/DayLabels.class
 com/devgirls/healthmonitor/entity/MLInsights.class
@@ -59,6 +58,7 @@ com/devgirls/healthmonitor/repository/RecommendationsRepository.class
 com/devgirls/healthmonitor/entity/DailyAggregates$DailyAggregatesBuilder.class
 com/devgirls/healthmonitor/dto/DeviceDTO.class
 com/devgirls/healthmonitor/controller/UserController.class
+com/devgirls/healthmonitor/service/WeeklySummaryService.class
 com/devgirls/healthmonitor/entity/User.class
 com/devgirls/healthmonitor/service/MLInferenceService.class
 com/devgirls/healthmonitor/entity/MLInsights$MLInsightsBuilder.class
