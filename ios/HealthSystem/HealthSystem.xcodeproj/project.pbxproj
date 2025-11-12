@@ -146,7 +146,7 @@
 				CODE_SIGN_ENTITLEMENTS = HealthSystem/HealthSystem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				DEVELOPMENT_TEAM = A3HC3RB4U4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -174,7 +174,7 @@
 				CODE_SIGN_ENTITLEMENTS = HealthSystem/HealthSystem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				DEVELOPMENT_TEAM = A3HC3RB4U4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
