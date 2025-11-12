@@ -3,8 +3,13 @@
 <plist version="1.0">
 <dict>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	<key>com.apple.developer.healthkit</key>
 	<true/>
+=======
+    <key>com.apple.developer.healthkit</key>
+    <true/>
+>>>>>>> Stashed changes
 =======
     <key>com.apple.developer.healthkit</key>
     <true/>
