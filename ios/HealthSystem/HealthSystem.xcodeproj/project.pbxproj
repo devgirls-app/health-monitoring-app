@@ -6,15 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		61C2CF102CF2A6A65CC08D09 /* Pods_HealthSystem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1E5AFC39658B8C55AB07FA5 /* Pods_HealthSystem.framework */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
-		4957B750748EA2E3D53A148E /* Pods-HealthSystem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HealthSystem.debug.xcconfig"; path = "Target Support Files/Pods-HealthSystem/Pods-HealthSystem.debug.xcconfig"; sourceTree = "<group>"; };
 		64D6564D2E9FEDED00C4265A /* HealthSystem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthSystem.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D1E5AFC39658B8C55AB07FA5 /* Pods_HealthSystem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HealthSystem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F7595295FB9305CE99E67A94 /* Pods-HealthSystem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HealthSystem.release.xcconfig"; path = "Target Support Files/Pods-HealthSystem/Pods-HealthSystem.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				61C2CF102CF2A6A65CC08D09 /* Pods_HealthSystem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,8 +47,6 @@
 			children = (
 				64D6564F2E9FEDED00C4265A /* HealthSystem */,
 				64D6564E2E9FEDED00C4265A /* Products */,
-				DD4A2DAC25074EC7F43A2867 /* Pods */,
-				F28020CB9A233E08B4E035E9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -68,23 +58,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DD4A2DAC25074EC7F43A2867 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				4957B750748EA2E3D53A148E /* Pods-HealthSystem.debug.xcconfig */,
-				F7595295FB9305CE99E67A94 /* Pods-HealthSystem.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		F28020CB9A233E08B4E035E9 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				D1E5AFC39658B8C55AB07FA5 /* Pods_HealthSystem.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -92,11 +65,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 64D656602E9FEDEF00C4265A /* Build configuration list for PBXNativeTarget "HealthSystem" */;
 			buildPhases = (
-				7ADD90DA2850EC6745D5DFA0 /* [CP] Check Pods Manifest.lock */,
 				64D656492E9FEDED00C4265A /* Sources */,
 				64D6564A2E9FEDED00C4265A /* Frameworks */,
 				64D6564B2E9FEDED00C4265A /* Resources */,
-				6E729E3C3D75B4EFF1EC379B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -106,6 +77,8 @@
 				64D6564F2E9FEDED00C4265A /* HealthSystem */,
 			);
 			name = HealthSystem;
+			packageProductDependencies = (
+			);
 			productName = HealthSystem;
 			productReference = 64D6564D2E9FEDED00C4265A /* HealthSystem.app */;
 			productType = "com.apple.product-type.application";
@@ -154,48 +127,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		6E729E3C3D75B4EFF1EC379B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7ADD90DA2850EC6745D5DFA0 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-HealthSystem-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		64D656492E9FEDED00C4265A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -209,14 +140,13 @@
 /* Begin XCBuildConfiguration section */
 		64D656612E9FEDEF00C4265A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4957B750748EA2E3D53A148E /* Pods-HealthSystem.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HealthSystem/HealthSystem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				DEVELOPMENT_TEAM = A3HC3RB4U4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -238,14 +168,13 @@
 		};
 		64D656622E9FEDEF00C4265A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F7595295FB9305CE99E67A94 /* Pods-HealthSystem.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HealthSystem/HealthSystem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				DEVELOPMENT_TEAM = A3HC3RB4U4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
