@@ -10,6 +10,12 @@ import java.util.*;
 public interface DailyAggregatesRepository extends JpaRepository<DailyAggregates, Long> {
     Optional<DailyAggregates> findByUser_UserIdAndDate(Long userId, LocalDate date);
 
+    List<DailyAggregates> findByUser_UserIdAndDateBetweenOrderByDateAsc(
+            Long userId,
+            LocalDate start,
+            LocalDate end
+    );
+
     @Query(value = """
 
             SELECT steps_total

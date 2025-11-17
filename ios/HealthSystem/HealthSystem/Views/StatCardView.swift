@@ -53,4 +53,8 @@ final class StatCardView: UIView {
     }
     
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
+    func update(value: String) {
+            valueLabel.text = value
+    }
 }

@@ -84,15 +84,24 @@ public class MLInferenceService {
         }
 
         Map<String, Double> f = new HashMap<>();
-        f.put("steps_total",        agg.getStepsTotal() != null ? agg.getStepsTotal().doubleValue() : 0.0);
-        f.put("calories_total",     agg.getCaloriesTotal() != null ? agg.getCaloriesTotal().doubleValue() : 0.0);
-        f.put("sleep_hours_total",  agg.getSleepHoursTotal() != null ? agg.getSleepHoursTotal().doubleValue() : 0.0);
-        f.put("age",                user.getAge() != null ? user.getAge().doubleValue() : 0.0);
-        f.put("gender_numeric",     mapGender(user.getGender()));
-        f.put("height_cm",          user.getHeight() != null ? user.getHeight().doubleValue() : 0.0);
-        f.put("weight_kg",          user.getWeight() != null ? user.getWeight().doubleValue() : 0.0);
-        f.put("d_sleep_7d",         agg.getDSleep7d() != null ? agg.getDSleep7d().doubleValue() : 0.0);
-        f.put("d_steps_7d",         agg.getDSteps7d() != null ? agg.getDSteps7d().doubleValue() : 0.0);
+        f.put("steps_total",
+                agg.getStepsTotal() != null ? agg.getStepsTotal().doubleValue() : 0.0);
+        f.put("calories_total",
+                agg.getCaloriesTotal() != null ? agg.getCaloriesTotal().doubleValue() : 0.0);
+        f.put("sleep_hours_total",
+                agg.getSleepHoursTotal() != null ? agg.getSleepHoursTotal().doubleValue() : 0.0);
+        f.put("age",
+                user.getAge() != null ? user.getAge().doubleValue() : 0.0);
+        f.put("gender_numeric",
+                mapGender(user.getGender()));
+        f.put("height_cm",
+                user.getHeight() != null ? user.getHeight().doubleValue() : 0.0);
+        f.put("weight_kg",
+                user.getWeight() != null ? user.getWeight().doubleValue() : 0.0);
+        f.put("d_sleep_7d",
+                agg.getDSleep7d() != null ? agg.getDSleep7d().doubleValue() : 0.0);
+        f.put("d_steps_7d",
+                agg.getDSteps7d() != null ? agg.getDSteps7d().doubleValue() : 0.0);
 
         if (featureOrder.size() != 9) {
             log.error("Mismatch: model expects 9 features, but JSON specified {}", featureOrder.size());
@@ -106,16 +115,17 @@ public class MLInferenceService {
             input[i] = val.floatValue();
         }
 
-        // 3) Create tensor [1, N]
-        OnnxTensor tensor = OnnxTensor.createTensor(
+        log.info("Features for user {}: {}", user.getUserId(), f);
+
+        String inputName = session.getInputNames().iterator().next();
+
+        try (OnnxTensor tensor = OnnxTensor.createTensor(
                 env,
                 FloatBuffer.wrap(input),
                 new long[]{1, featureOrder.size()}
         );
+             OrtSession.Result result = session.run(Map.of(inputName, tensor))) {
 
-        String inputName = session.getInputNames().iterator().next();
-
-        try (OrtSession.Result result = session.run(Map.of(inputName, tensor))) {
             String probabilityOutputName = null;
             for (String name : session.getOutputNames()) {
                 if (name.toLowerCase().contains("prob")) {
@@ -124,10 +134,9 @@ public class MLInferenceService {
                 }
             }
             if (probabilityOutputName == null && session.getOutputNames().size() > 1) {
-                List<String> outputNames = new java.util.ArrayList<>(session.getOutputNames());
+                var outputNames = new java.util.ArrayList<>(session.getOutputNames());
                 probabilityOutputName = outputNames.get(1);
             }
-
             if (probabilityOutputName == null) {
                 throw new IllegalStateException("Could not find probability output in ONNX model");
             }
@@ -135,15 +144,16 @@ public class MLInferenceService {
             OnnxValue probValue = result.get(probabilityOutputName).orElseThrow();
             Object value = probValue.getValue();
 
-            double prob = 0.0;
+            double prob;
 
-            if (value instanceof float[][]) {
-                float[][] probs = (float[][]) value;
+            if (value instanceof float[][] probs) {
                 prob = probs[0][1];
-            } else if (value instanceof List) {
-                List<Map<Long, Float>> probsList = (List<Map<Long, Float>>) value;
-                Map<Long, Float> probs = probsList.get(0);
-                prob = probs.getOrDefault(1L, 0.0f).doubleValue();
+            } else if (value instanceof java.util.List<?> list) {
+                @SuppressWarnings("unchecked")
+                java.util.List<java.util.Map<Long, Float>> probsList =
+                        (java.util.List<java.util.Map<Long, Float>>) list;
+                java.util.Map<Long, Float> probs = probsList.get(0);
+                prob = probs.getOrDefault(1L, 0.0f);
             } else {
                 throw new RuntimeException("Unexpected ONNX output type: " + value.getClass().getName());
             }

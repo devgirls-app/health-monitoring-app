@@ -5,64 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dd2e6434-f627-4482-a9ca-5a3654fef73c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/TestMLController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/MLInferenceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/43f92034-92d3-4a86-9c19-705ea6c5ddd5.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/43f92034-92d3-4a86-9c19-705ea6c5ddd5/storage_v2/_src_/database/healthdb.2uf9vQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/43f92034-92d3-4a86-9c19-705ea6c5ddd5/storage_v2/_src_/database/healthdb.2uf9vQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/43f92034-92d3-4a86-9c19-705ea6c5ddd5/storage_v2/_src_/database/healthdb.2uf9vQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/43f92034-92d3-4a86-9c19-705ea6c5ddd5/storage_v2/_src_/database/healthdb.2uf9vQ/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Helpers/Extension.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthSnapshot.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/AggregatesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/AggregatesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/HealthDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/HealthDataController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/dto/RecommendationsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/dto/RecommendationsDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/DailyAggregates.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/DailyAggregates.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/MLInsights.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/MLInsights.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/ModelRegistryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/ModelRegistryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/AggregationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/AggregationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationEngineService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationEngineService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/resources/db/migration/V4__backfill_daily_aggregates.sql" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/resources/db/migration/V4__backfill_daily_aggregates.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/controller/AggregatesController.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/controller/AggregatesController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/controller/HealthDataController.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/controller/HealthDataController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/dto/RecommendationsDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/dto/RecommendationsDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/entity/DailyAggregates.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/entity/DailyAggregates.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/entity/MLInsights.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/entity/MLInsights.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/repository/ModelRegistryRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/repository/ModelRegistryRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/AggregationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/AggregationService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationEngineService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationEngineService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationsService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationsService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/db/migration/V4__backfill_daily_aggregates.sql" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/db/migration/V4__backfill_daily_aggregates.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/UserService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/healthmonitor/target/healthmonitor-0.0.1-SNAPSHOT.jar.original" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/healthmonitor-0.0.1-SNAPSHOT.jar.original" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/project.pbxproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/xcuserdata/aruuketurgunbaeva.xcuserdatad/xcschemes/xcschememanagement.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/xcuserdata/aruuketurgunbaeva.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/AppDelegate.swift" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/MainTabBarController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/MainTabBarController.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/DashboardViewController.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Debug.xconfig" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthDataDTO.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthSystem.entitlements" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/MainTabBarController.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthKitManager.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthSystem.entitlements" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthSystem.entitlements" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/HealthKitManager.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/HealthKitManager.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/NetworkManager.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/NetworkManager.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthDataDTO.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthDataDTO.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthRecommendation.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthRecommendation.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/NetworkManager.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/ProfileViewController.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/RecommendationsViewController.swift" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/SceneDelegate.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/StatCardView.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/TrendsViewController.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/activity_anomaly_model.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/activity_anomaly_model.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/daily_health_report.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/daily_health_report.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/fatigue_model_v1.onnx" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/fatigue_model_v1.onnx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/fatigue_model_v1_features.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/fatigue_model_v1_features.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/fatigue_model_v1_metrics.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/fatigue_model_v1_metrics.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/models/fatigue_risk_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/models/fatigue_risk_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/wrapper.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/wrapper.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/ViewController.swift" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +73,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.HealthmonitorApplication.executor": "Run",
-    "git-widget-placeholder": "backend-fix",
+    "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/elinakarimova/health-monitoring-app/backend",
     "node.js.detected.package.eslint": "true",
@@ -173,6 +138,8 @@
       <workItem from="1760704329589" duration="5000" />
       <workItem from="1762274211723" duration="3555000" />
       <workItem from="1762519778821" duration="16693000" />
+      <workItem from="1762777557838" duration="120000" />
+      <workItem from="1762777786136" duration="11526000" />
     </task>
     <servers />
   </component>

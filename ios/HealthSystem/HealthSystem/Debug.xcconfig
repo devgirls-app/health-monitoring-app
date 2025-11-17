@@ -1,0 +1,4 @@
+#include "Pods/Target Support Files/Pods-HealthSystem/Pods-HealthSystem.debug.xcconfig"
+
+API_BASE_SCHEME = https
+API_BASE_HOST = author-loan-potter-heart.trycloudflare.com 
