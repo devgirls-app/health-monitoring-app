@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate   # 'update' is safer than 'create' for development
+      ddl-auto: update   # 'update' is safer than 'create' for development
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
@@ -16,12 +16,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     generate-ddl: true
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration: 86400000
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
   kafka:
-    bootstrap-servers: healthmonitor-kafka-1:9092   # use internal Docker network
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}   # use internal Docker network
     consumer:
       group-id: health-group
       auto-offset-reset: earliest

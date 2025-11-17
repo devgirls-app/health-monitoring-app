@@ -8,7 +8,9 @@ import UIKit
 final class DashboardViewController: UIViewController {
     
     // MARK: - Inputs
-    private let currentUserId: Int = 1
+    private var currentUserId: Int? {
+        return AuthManager.shared.getUserId()
+    }
     
     // MARK: - State
     private var userProfile: UserProfile?
@@ -36,7 +38,7 @@ final class DashboardViewController: UIViewController {
         print("More button tapped")
     }
     
-    // MARK: - HealthKit flow
+    // MARK: - HealthKit & Data Flow
     
     private func requestHealthKitAndThenRefreshDashboard() {
         HealthKitManager.shared.requestAuthorization { [weak self] success, error in
@@ -44,7 +46,7 @@ final class DashboardViewController: UIViewController {
             
             if success {
                 print("HealthKit access granted")
-                self.collectSnapshotAndSend()
+                self.fetchDataAndSync()
             } else {
                 print("HealthKit access denied:", error?.localizedDescription ?? "unknown")
                 self.fetchDashboardData()
@@ -52,7 +54,7 @@ final class DashboardViewController: UIViewController {
         }
     }
     
-    private func collectSnapshotAndSend() {
+    private func fetchDataAndSync() {
         let manualHR: Int? = nil
         
         HealthKitManager.shared.fetchTodaySnapshot(manualHR: manualHR) { [weak self] (snapshot: HealthSnapshot?) in
@@ -68,28 +70,54 @@ final class DashboardViewController: UIViewController {
                 self.updateUI(with: snapshot)
             }
             
-            print("Sending snapshot:", snapshot)
-            
-            let dto = snapshot.toDTO(userId: self.currentUserId)
+            let dto = snapshot.toDTO(userId: self.currentUserId ?? 0)
             
             NetworkManager.shared.postHealthData(dto) { result in
                 switch result {
                 case .success:
                     print("Health snapshot sent")
-                    self.runAggregationAndFetchDashboard()
                 case .failure(let error):
                     print("Failed to send snapshot:", error)
-                    self.fetchDashboardData()
                 }
+                
+                self.syncProfileAndAggregate(snapshot: snapshot)
             }
         }
     }
     
+    private func syncProfileAndAggregate(snapshot: HealthSnapshot) {
+        guard let userId = self.currentUserId else {
+            print("⚠️ User ID not found, skipping sync")
+            return
+        }
+
+        print("🔄 Syncing profile for User ID: \(userId)")
+        
+        NetworkManager.shared.syncUserProfile(
+            userId: userId,
+            age: snapshot.age,
+            weight: snapshot.weight,
+            height: snapshot.height,
+            gender: snapshot.gender
+        ) { result in
+            switch result {
+            case .success:
+                print("User profile synced successfully!")
+            case .failure(let error):
+                print("Failed to sync profile: \(error)")
+            }
+            
+            self.runAggregationAndFetchDashboard()
+        }
+    }
+    
     private func runAggregationAndFetchDashboard() {
+        guard let userId = currentUserId else { return }
+        
         let today = Date()
         let todayString = DateFormatters.yyyyMMdd.string(from: today)
         
-        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
+        NetworkManager.shared.runAggregate(userId: userId, date: todayString) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let summary):
@@ -102,8 +130,10 @@ final class DashboardViewController: UIViewController {
         }
     }
     
-    // MARK: - Networking
+    // MARK: - Fetching Data for UI
     private func fetchDashboardData() {
+        guard let userId = currentUserId else { return }
+
         DispatchQueue.main.async {
             self.mainView.setLoading(true)
         }
@@ -112,7 +142,7 @@ final class DashboardViewController: UIViewController {
         var fetchError: Error?
         
         group.enter()
-        NetworkManager.shared.fetchUserProfile(userId: currentUserId) { [weak self] result in
+        NetworkManager.shared.fetchUserProfile(userId: userId) { [weak self] result in
             defer { group.leave() }
             switch result {
             case .success(let profile):
@@ -126,7 +156,7 @@ final class DashboardViewController: UIViewController {
         let todayString = DateFormatters.yyyyMMdd.string(from: today)
         
         group.enter()
-        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
+        NetworkManager.shared.runAggregate(userId: userId, date: todayString) { [weak self] result in
             defer { group.leave() }
             switch result {
             case .success(let summary):

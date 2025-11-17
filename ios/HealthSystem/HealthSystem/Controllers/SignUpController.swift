@@ -124,13 +124,29 @@ class SignUpController: UIViewController {
             
             switch result {
             case .success:
-                print("Registration successful. Logging in...")
-                self.loginUser(email: email, password: password)
+                print("Registration successful. Attempting auto-login...")
+                
+                NetworkManager.shared.login(email: email, password: password) { loginResult in
+                    DispatchQueue.main.async {
+                        self.setLoading(false)
+                        
+                        switch loginResult {
+                        case .success(let response):
+                            AuthManager.shared.saveToken(response.token)
+                            UserDefaults.standard.set(response.userId, forKey: "cachedUserId")
+                            
+                            (UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate)?.checkAuthentication()
+                            
+                        case .failure(let error):
+                            self.showErrorAlert(title: "Success", message: "Account created, but login failed. Please sign in manually.")
+                        }
+                    }
+                }
                 
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.setLoading(false)
-                    self.showErrorAlert(message: "Registration Failed: \(error.localizedDescription)")
+                    self.showErrorAlert(message: error.localizedDescription)
                 }
             }
         }

@@ -84,4 +84,9 @@ final class AuthManager {
             print("AuthManager: Token deleted.")
         }
     }
+    
+    func getUserId() -> Int? {
+        let id = UserDefaults.standard.integer(forKey: "cachedUserId")
+        return id == 0 ? nil : id
+    }
 }

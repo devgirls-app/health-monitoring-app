@@ -13,11 +13,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         self.setUpWindow(with: scene)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSessionExpired),
+            name: NSNotification.Name("AuthSessionExpired"),
+            object: nil
+        )
+        
         self.checkAuthentication()
     
         if let urlContext = connectionOptions.urlContexts.first {
             handleDeepLink(url: urlContext.url)
         }
+    }
+    
+    @objc private func handleSessionExpired() {
+        print("Session expired notification received. Switching to SignInController.")
+        self.goToController(with: SignInController())
     }
     
     private func setUpWindow(with scene: UIScene) {
@@ -40,6 +53,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             UIView.animate(withDuration: 0.25) {
                 self?.window?.layer.opacity = 0
             } completion: { [weak self] _ in
+                
                 let nav = UINavigationController(rootViewController: viewController)
                 nav.modalPresentationStyle = .fullScreen
                 self?.window?.rootViewController = nav
@@ -77,5 +91,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 }
             }
         }
+    }
+    
+    func sceneDidDisconnect(_ scene: UIScene) {
+        NotificationCenter.default.removeObserver(self)
     }
 }

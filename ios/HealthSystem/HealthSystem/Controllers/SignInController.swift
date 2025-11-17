@@ -95,14 +95,17 @@ class SignInController: UIViewController {
         
         setLoading(true)
         
-        // Ваш NetworkManager код...
         NetworkManager.shared.login(email: email, password: password) { [weak self] result in
             DispatchQueue.main.async {
                 self?.setLoading(false)
                 switch result {
                 case .success(let loginResponse):
                     AuthManager.shared.saveToken(loginResponse.token)
+                    
+                    UserDefaults.standard.set(loginResponse.userId, forKey: "cachedUserId")
+                    
                     (UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate)?.checkAuthentication()
+                    
                 case .failure(let error):
                     self?.showErrorAlert(message: error.localizedDescription)
                 }

@@ -78,62 +78,112 @@ final class NetworkManager {
     }
     
     private func handleResponse<T: Decodable>(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<T, Error>) -> Void) {
-        if let error = error {
-            return completion(.failure(error))
-        }
-        
-        guard let http = response as? HTTPURLResponse else {
-            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
-        }
-        
-        guard (200..<300).contains(http.statusCode) else {
-            let message = String(data: data ?? Data(), encoding: .utf8)
-            switch http.statusCode {
-            case 400: completion(.failure(NetworkError.badRequest(message)))
-            case 401: completion(.failure(NetworkError.unauthorized))
-            case 403: completion(.failure(NetworkError.forbidden))
-            case 404: completion(.failure(NetworkError.notFound))
-            default: completion(.failure(NetworkError.serverError(message)))
+            print("\n--- INCOMING RESPONSE ---")
+            
+            if let error = error {
+                print("Transport Error: \(error.localizedDescription)")
+                return completion(.failure(error))
             }
-            return
-        }
-        
-        guard let data = data, !data.isEmpty else {
-            return completion(.failure(NetworkError.noData))
-        }
-        
-        do {
-            let decodedObject = try self.jsonDecoder.decode(T.self, from: data)
-            completion(.success(decodedObject))
-        } catch {
-            print("Decoding Error: \(error)")
-            completion(.failure(NetworkError.decodingError(error)))
-        }
-    }
-    
-    private func handleVoidResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<Void, Error>) -> Void) {
-        if let error = error {
-            return completion(.failure(error))
-        }
-        
-        guard let http = response as? HTTPURLResponse else {
-            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
-        }
-        
-        guard (200..<300).contains(http.statusCode) else {
-            let message = String(data: data ?? Data(), encoding: .utf8)
-            switch http.statusCode {
-            case 400: completion(.failure(NetworkError.badRequest(message)))
-            case 401: completion(.failure(NetworkError.unauthorized))
-            case 403: completion(.failure(NetworkError.forbidden))
-            case 404: completion(.failure(NetworkError.notFound))
-            default: completion(.failure(NetworkError.serverError(message)))
+            
+            guard let http = response as? HTTPURLResponse else {
+                print("Error: Not HTTP response")
+                return completion(.failure(NetworkError.unknown("Invalid response from server.")))
             }
-            return
+            
+            print("STATUS CODE: \(http.statusCode)")
+            
+            if let data = data, let rawString = String(data: data, encoding: .utf8) {
+                print("BODY (RAW): \(rawString)")
+            } else {
+                print("BODY: [Empty or Binary]")
+            }
+            
+            if http.statusCode == 401 || http.statusCode == 403 {
+                print("Token expired or forbidden. Global logout initiated.")
+                
+                AuthManager.shared.deleteToken()
+                
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NSNotification.Name("AuthSessionExpired"), object: nil)
+                }
+                
+                return completion(.failure(NetworkError.unauthorized))
+            }
+            
+            guard (200..<300).contains(http.statusCode) else {
+                print("Server returned error status code")
+                let message = String(data: data ?? Data(), encoding: .utf8)
+                
+                switch http.statusCode {
+                case 400: completion(.failure(NetworkError.badRequest(message)))
+                case 404: completion(.failure(NetworkError.notFound))
+                default: completion(.failure(NetworkError.serverError(message)))
+                }
+                return
+            }
+            
+            guard let data = data, !data.isEmpty else {
+                print("Error: No Data to decode")
+                return completion(.failure(NetworkError.noData))
+            }
+            
+            do {
+                let decodedObject = try self.jsonDecoder.decode(T.self, from: data)
+                print("Decoding Success")
+                completion(.success(decodedObject))
+            } catch {
+                print("DECODING ERROR: \(error)")
+                completion(.failure(NetworkError.decodingError(error)))
+            }
+            print("----------------------------\n")
         }
         
-        completion(.success(()))
-    }
+        private func handleVoidResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<Void, Error>) -> Void) {
+            print("\n--- INCOMING VOID RESPONSE ---")
+            
+            if let error = error {
+                print("Transport Error: \(error.localizedDescription)")
+                return completion(.failure(error))
+            }
+            
+            guard let http = response as? HTTPURLResponse else {
+                return completion(.failure(NetworkError.unknown("Invalid response from server.")))
+            }
+            
+            print("STATUS CODE: \(http.statusCode)")
+            
+            if let data = data, let rawString = String(data: data, encoding: .utf8) {
+                print("BODY (RAW): \(rawString)")
+            }
+            
+            if http.statusCode == 401 || http.statusCode == 403 {
+                print("Token expired or forbidden (Void Request). Global logout initiated.")
+                
+                AuthManager.shared.deleteToken()
+                
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NSNotification.Name("AuthSessionExpired"), object: nil)
+                }
+                
+                return completion(.failure(NetworkError.unauthorized))
+            }
+            
+            guard (200..<300).contains(http.statusCode) else {
+                print("Server returned error status code")
+                let message = String(data: data ?? Data(), encoding: .utf8)
+                
+                switch http.statusCode {
+                case 400: completion(.failure(NetworkError.badRequest(message)))
+                case 404: completion(.failure(NetworkError.notFound))
+                default: completion(.failure(NetworkError.serverError(message)))
+                }
+                return
+            }
+            
+            print("Request Successful (Void)")
+            completion(.success(()))
+            print("----------------------------\n")
+        }
     
     
     // MARK: - Auth Endpoints (ДОБАВЛЕНО)
@@ -163,7 +213,7 @@ final class NetworkManager {
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body = RegisterRequest(name: name, email: email, password: password)
+        let body = RegisterRequest(name: name, surname: surname, email: email, password: password)
         do { req.httpBody = try jsonEncoder.encode(body) }
         catch { return completion(.failure(error)) }
         
@@ -203,6 +253,40 @@ final class NetworkManager {
         
         URLSession.shared.dataTask(with: req) { data, resp, err in
             self.handleVoidResponse(data: data, response: resp, error: err, completion: completion)
+        }.resume()
+    }
+    
+    func syncUserProfile(userId: Int, age: Int?, weight: Double?, height: Double?, gender: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+        
+        guard let url = URL(string: "\(NetworkManager.baseURL.absoluteString)/users/\(userId)") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = AuthManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("Token attached to PUT request: \(token.prefix(10))...")
+        } else {
+            print("No token found for syncUserProfile request!")
+        }
+        
+        let body: [String: Any] = [
+            "age": age as Any,
+            "weight": weight as Any,
+            "height": height as Any,
+            "gender": gender as Any
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            self.handleVoidResponse(data: data, response: response, error: error, completion: completion)
         }.resume()
     }
     
