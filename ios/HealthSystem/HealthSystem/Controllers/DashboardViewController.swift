@@ -2,148 +2,175 @@
 //  DashboardViewController.swift
 //  HealthSystem
 //
-//  Created by Aruuke Turgunbaeva on 3/11/25.
-//
 
 import UIKit
-import SnapKit
 
 final class DashboardViewController: UIViewController {
     
-    // MARK: - UI Elements
-    private let greetingLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Привет, Арууке 👋"
-        label.font = .boldSystemFont(ofSize: 28)
-        return label
-    }()
+    // MARK: - Inputs
+    private let currentUserId: Int = 1
     
-    private let statusIndicator: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGreen
-        view.layer.cornerRadius = 6
-        return view
-    }()
+    // MARK: - State
+    private var userProfile: UserProfile?
+    private var dailySummary: DailySummary?
     
-    private let statusLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Все показатели в норме"
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 15)
-        return label
-    }()
+    // MARK: - View
+    private let mainView = DashboardView()
     
-    private lazy var pulseCard = StatCardView(icon: "❤️", value: "82 bpm", label: "Пульс", color: .systemRed)
-    private lazy var stepsCard = StatCardView(icon: "👣", value: "7 520", label: "Шаги", color: .systemBlue)
-    private lazy var caloriesCard = StatCardView(icon: "🔥", value: "2 150", label: "Калории", color: .systemOrange)
-    private lazy var sleepCard = StatCardView(icon: "🌙", value: "7 ч", label: "Сон", color: .systemPurple)
-    
-    private let recommendationTitle: UILabel = {
-        let label = UILabel()
-        label.text = "💡 Последняя рекомендация"
-        label.font = .boldSystemFont(ofSize: 18)
-        return label
-    }()
-    
-    private let recommendationText: UILabel = {
-        let label = UILabel()
-        label.text = "Ваш пульс выше нормы при низкой активности. Сделайте перерыв и выпейте воды 💧."
-        label.numberOfLines = 0
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 15)
-        return label
-    }()
-    
-    private let moreButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Подробнее", for: .normal)
-        button.tintColor = .systemBlue
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        return button
-    }()
-    
-    private let recommendationContainer = UIView()
+    override func loadView() {
+        self.view = mainView
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
-        setupLayout()
+        setupActions()
+        requestHealthKitAndThenRefreshDashboard()
     }
     
-    // MARK: - Layout
-    private func setupLayout() {
-        view.addSubview(greetingLabel)
-        view.addSubview(statusIndicator)
-        view.addSubview(statusLabel)
-        
-        greetingLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.leading.equalToSuperview().offset(20)
-        }
-        
-        statusIndicator.snp.makeConstraints { make in
-            make.leading.equalTo(greetingLabel)
-            make.top.equalTo(greetingLabel.snp.bottom).offset(8)
-            make.size.equalTo(CGSize(width: 12, height: 12))
-        }
-        
-        statusLabel.snp.makeConstraints { make in
-            make.centerY.equalTo(statusIndicator)
-            make.leading.equalTo(statusIndicator.snp.trailing).offset(8)
-        }
-        
-        // Stack для карточек
-        let topStack = UIStackView(arrangedSubviews: [pulseCard, stepsCard])
-        topStack.axis = .horizontal
-        topStack.spacing = 16
-        topStack.distribution = .fillEqually
-        
-        let bottomStack = UIStackView(arrangedSubviews: [caloriesCard, sleepCard])
-        bottomStack.axis = .horizontal
-        bottomStack.spacing = 16
-        bottomStack.distribution = .fillEqually
-        
-        let cardsStack = UIStackView(arrangedSubviews: [topStack, bottomStack])
-        cardsStack.axis = .vertical
-        cardsStack.spacing = 16
-        
-        view.addSubview(cardsStack)
-        cardsStack.snp.makeConstraints { make in
-            make.top.equalTo(statusLabel.snp.bottom).offset(24)
-            make.leading.trailing.equalToSuperview().inset(20)
-        }
-        
-        // Recommendation
-        recommendationContainer.backgroundColor = .white
-        recommendationContainer.layer.cornerRadius = 16
-        recommendationContainer.layer.shadowColor = UIColor.black.cgColor
-        recommendationContainer.layer.shadowOpacity = 0.1
-        recommendationContainer.layer.shadowRadius = 4
-        recommendationContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
-        
-        view.addSubview(recommendationContainer)
-        recommendationContainer.snp.makeConstraints { make in
-            make.top.equalTo(cardsStack.snp.bottom).offset(24)
-            make.leading.trailing.equalToSuperview().inset(20)
-        }
-        
-        recommendationContainer.addSubview(recommendationTitle)
-        recommendationContainer.addSubview(recommendationText)
-        recommendationContainer.addSubview(moreButton)
-        
-        recommendationTitle.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(16)
-        }
-        recommendationText.snp.makeConstraints { make in
-            make.top.equalTo(recommendationTitle.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(16)
-        }
-        moreButton.snp.makeConstraints { make in
-            make.top.equalTo(recommendationText.snp.bottom).offset(12)
-            make.leading.equalTo(recommendationText)
-            make.bottom.equalToSuperview().inset(16)
+    private func setupActions() {
+        mainView.moreButton.addTarget(self, action: #selector(handleMoreTap), for: .touchUpInside)
+    }
+    
+    @objc private func handleMoreTap() {
+        print("More button tapped")
+    }
+    
+    // MARK: - HealthKit flow
+    
+    private func requestHealthKitAndThenRefreshDashboard() {
+        HealthKitManager.shared.requestAuthorization { [weak self] success, error in
+            guard let self = self else { return }
+            
+            if success {
+                print("HealthKit access granted")
+                self.collectSnapshotAndSend()
+            } else {
+                print("HealthKit access denied:", error?.localizedDescription ?? "unknown")
+                self.fetchDashboardData()
+            }
         }
     }
+    
+    private func collectSnapshotAndSend() {
+        let manualHR: Int? = nil
+        
+        HealthKitManager.shared.fetchTodaySnapshot(manualHR: manualHR) { [weak self] (snapshot: HealthSnapshot?) in
+            guard let self = self else { return }
+            guard let snapshot = snapshot else {
+                print("Failed to build snapshot")
+                self.fetchDashboardData()
+                return
+            }
+            
+            DispatchQueue.main.async {
+                print("Updating UI with LOCAL snapshot")
+                self.updateUI(with: snapshot)
+            }
+            
+            print("Sending snapshot:", snapshot)
+            
+            let dto = snapshot.toDTO(userId: self.currentUserId)
+            
+            NetworkManager.shared.postHealthData(dto) { result in
+                switch result {
+                case .success:
+                    print("Health snapshot sent")
+                    self.runAggregationAndFetchDashboard()
+                case .failure(let error):
+                    print("Failed to send snapshot:", error)
+                    self.fetchDashboardData()
+                }
+            }
+        }
+    }
+    
+    private func runAggregationAndFetchDashboard() {
+        let today = Date()
+        let todayString = DateFormatters.yyyyMMdd.string(from: today)
+        
+        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let summary):
+                print("Aggregation done:", summary)
+                self.fetchDashboardData()
+            case .failure(let error):
+                print("Aggregation error:", error)
+                self.fetchDashboardData()
+            }
+        }
+    }
+    
+    // MARK: - Networking
+    private func fetchDashboardData() {
+        DispatchQueue.main.async {
+            self.mainView.setLoading(true)
+        }
+        
+        let group = DispatchGroup()
+        var fetchError: Error?
+        
+        group.enter()
+        NetworkManager.shared.fetchUserProfile(userId: currentUserId) { [weak self] result in
+            defer { group.leave() }
+            switch result {
+            case .success(let profile):
+                self?.userProfile = profile
+            case .failure(let error):
+                fetchError = error
+            }
+        }
+        
+        let today = Date()
+        let todayString = DateFormatters.yyyyMMdd.string(from: today)
+        
+        group.enter()
+        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
+            defer { group.leave() }
+            switch result {
+            case .success(let summary):
+                self?.dailySummary = summary
+            case .failure(let error):
+                fetchError = error
+            }
+        }
+        
+        group.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            self.mainView.setLoading(false)
+            
+            if let err = fetchError {
+                print("Error fetching dashboard data:", err.localizedDescription)
+                return
+            }
+            
+            print("Dashboard data loaded.")
+            self.updateUIFromNetworkData()
+        }
+    }
+    
+    // MARK: - UI Updates Handlers
+    private func updateUI(with localSnapshot: HealthSnapshot) {
+        mainView.updateStats(
+            hr: localSnapshot.averageHeartRate ?? 0,
+            steps: localSnapshot.steps ?? 0,
+            calories: Int((localSnapshot.calories ?? 0).rounded()),
+            sleep: localSnapshot.sleepHours ?? 0
+        )
+    }
+    
+    private func updateUIFromNetworkData() {
+        mainView.updateGreeting(name: userProfile?.name)
+        
+        let recText = userProfile?.recommendations?.first?.recommendationText
+        mainView.updateRecommendation(text: recText)
+        
+        let hr  = Int((dailySummary?.hrMean ?? 0).rounded())
+        let st  = dailySummary?.stepsTotal ?? 0
+        let cal = Int((dailySummary?.caloriesTotal ?? 0).rounded())
+        let sl  = dailySummary?.sleepHoursTotal ?? 0
+        
+        mainView.updateStats(hr: hr, steps: st, calories: cal, sleep: sl)
+    }
 }
-

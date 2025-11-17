@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6142C24875E57F62F47D453E /* Pods_HealthSystem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E38CCB0C3C932F66735703F /* Pods_HealthSystem.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		64D6564D2E9FEDED00C4265A /* HealthSystem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthSystem.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AAF9DD4F4D7545118B93B77 /* Pods-HealthSystem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HealthSystem.release.xcconfig"; path = "Target Support Files/Pods-HealthSystem/Pods-HealthSystem.release.xcconfig"; sourceTree = "<group>"; };
+		6B80C1CAB242A64137EB9174 /* Pods-HealthSystem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HealthSystem.debug.xcconfig"; path = "Target Support Files/Pods-HealthSystem/Pods-HealthSystem.debug.xcconfig"; sourceTree = "<group>"; };
+		9E38CCB0C3C932F66735703F /* Pods_HealthSystem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HealthSystem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -26,6 +33,9 @@
 			exceptions = (
 				64D6565F2E9FEDEF00C4265A /* Exceptions for "HealthSystem" folder in "HealthSystem" target */,
 			);
+			explicitFileTypes = {
+				Debug.xcconfig = text.xcconfig;
+			};
 			path = HealthSystem;
 			sourceTree = "<group>";
 		};
@@ -36,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6142C24875E57F62F47D453E /* Pods_HealthSystem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +58,8 @@
 			children = (
 				64D6564F2E9FEDED00C4265A /* HealthSystem */,
 				64D6564E2E9FEDED00C4265A /* Products */,
+				B759220399D3ECB0C61F4E94 /* Pods */,
+				FF691527F1711D933CF61A6C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +71,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B759220399D3ECB0C61F4E94 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6B80C1CAB242A64137EB9174 /* Pods-HealthSystem.debug.xcconfig */,
+				6AAF9DD4F4D7545118B93B77 /* Pods-HealthSystem.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		FF691527F1711D933CF61A6C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9E38CCB0C3C932F66735703F /* Pods_HealthSystem.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -65,9 +95,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 64D656602E9FEDEF00C4265A /* Build configuration list for PBXNativeTarget "HealthSystem" */;
 			buildPhases = (
+				B7BCC637D092324F420DC0BE /* [CP] Check Pods Manifest.lock */,
 				64D656492E9FEDED00C4265A /* Sources */,
 				64D6564A2E9FEDED00C4265A /* Frameworks */,
 				64D6564B2E9FEDED00C4265A /* Resources */,
+				92092EAC544A3D8D056ACCA9 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -77,8 +109,6 @@
 				64D6564F2E9FEDED00C4265A /* HealthSystem */,
 			);
 			name = HealthSystem;
-			packageProductDependencies = (
-			);
 			productName = HealthSystem;
 			productReference = 64D6564D2E9FEDED00C4265A /* HealthSystem.app */;
 			productType = "com.apple.product-type.application";
@@ -127,6 +157,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		92092EAC544A3D8D056ACCA9 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HealthSystem/Pods-HealthSystem-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B7BCC637D092324F420DC0BE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HealthSystem-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		64D656492E9FEDED00C4265A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -140,6 +212,8 @@
 /* Begin XCBuildConfiguration section */
 		64D656612E9FEDEF00C4265A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 64D6564F2E9FEDED00C4265A /* HealthSystem */;
+			baseConfigurationReferenceRelativePath = Debug.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -147,8 +221,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses your Health data (steps, heart rate, and sleep) to track your wellbeing.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app writes your health data to HealthKit to keep your records up to date.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -158,7 +235,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = devgirls.HealthSystem;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Aruuke.HealthSystem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -168,6 +245,7 @@
 		};
 		64D656622E9FEDEF00C4265A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6AAF9DD4F4D7545118B93B77 /* Pods-HealthSystem.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -175,8 +253,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LH7FMGZ75D;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthSystem/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses your Health data (steps, heart rate, and sleep) to track your wellbeing.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app writes your health data to HealthKit to keep your records up to date.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -186,7 +267,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = devgirls.HealthSystem;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Aruuke.HealthSystem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -196,6 +277,8 @@
 		};
 		64D656632E9FEDEF00C4265A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 64D6564F2E9FEDED00C4265A /* HealthSystem */;
+			baseConfigurationReferenceRelativePath = Debug.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
