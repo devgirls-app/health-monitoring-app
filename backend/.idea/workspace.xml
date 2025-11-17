@@ -5,23 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dd2e6434-f627-4482-a9ca-5a3654fef73c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/controller/WeeklySummaryController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/WeeklySummaryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Helpers/Extension.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthSnapshot.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/DailyAggregatesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/DailyAggregatesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/MLInsightsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/MLInsightsRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/AggregationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/AggregationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/MLInferenceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/MLInferenceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationEngineService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/RecommendationEngineService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/resources/models/fatigue_model_v1.onnx" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/resources/models/fatigue_model_v1.onnx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/repository/DailyAggregatesRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/repository/DailyAggregatesRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/AggregationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/AggregationService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationEngineService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/RecommendationEngineService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/classes/com/devgirls/healthmonitor/service/UserService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/healthmonitor/target/healthmonitor-0.0.1-SNAPSHOT.jar.original" beforeDir="false" afterPath="$PROJECT_DIR$/healthmonitor/target/healthmonitor-0.0.1-SNAPSHOT.jar.original" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/export/fatigue_model_v1.onnx" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/export/fatigue_model_v1.onnx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ml/models/fatigue_risk_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ml/models/fatigue_risk_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/xcuserdata/aruuketurgunbaeva.xcuserdatad/xcschemes/xcschememanagement.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem.xcodeproj/xcuserdata/aruuketurgunbaeva.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/AppDelegate.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Debug.xconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthDataDTO.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthKitManager.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthSystem.entitlements" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/HealthSystem.entitlements" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/HealthKitManager.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/HealthKitManager.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/NetworkManager.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Managers/NetworkManager.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthDataDTO.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthDataDTO.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthRecommendation.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/Models/HealthRecommendation.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/NetworkManager.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/SceneDelegate.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/HealthSystem/HealthSystem/ViewController.swift" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,46 +56,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Maven.healthmonitor [org.apache.maven.plugins:maven-clean-plugin:3.4.1:clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:migrate].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:repair].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:migrate].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:repair].executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Spring Boot.HealthmonitorApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;ios-full-restore&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/elinakarimova/health-monitoring-app/backend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.healthmonitor [org.apache.maven.plugins:maven-clean-plugin:3.4.1:clean].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:clean].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:migrate].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.13.2:repair].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:clean].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:migrate].executor": "Run",
+    "Maven.healthmonitor [org.flywaydb:flyway-maven-plugin:11.7.1:repair].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.HealthmonitorApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/Users/elinakarimova/health-monitoring-app/backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;,
-      &quot;couchbase_query&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql",
+      "couchbase_query"
     ],
-    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/&quot;: [
-      &quot;PostgreSQL&quot;
+    "com.intellij.ide.scratch.LRUPopupBuilder$1/": [
+      "PostgreSQL"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/healthmonitor/src/main/resources" />
