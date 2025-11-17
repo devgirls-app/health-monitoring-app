@@ -1,0 +1,9 @@
+
+ALTER TABLE users ADD COLUMN email VARCHAR(255);
+ALTER TABLE users ADD CONSTRAINT uk_users_email UNIQUE (email);
+
+
+ALTER TABLE users ADD COLUMN password VARCHAR(255);
+
+
+ALTER TABLE users ADD COLUMN surname VARCHAR(255);

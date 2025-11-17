@@ -9,10 +9,13 @@ import Foundation
 
 struct LoginResponse: Codable {
     let token: String
+    let userId: Int
+    let email: String
 }
 
 struct RegisterRequest: Codable {
     let name: String
+    let surname: String
     let email: String
     let password: String
 }

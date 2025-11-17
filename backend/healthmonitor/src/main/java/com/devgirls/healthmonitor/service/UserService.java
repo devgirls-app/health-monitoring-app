@@ -1,47 +1,55 @@
 package com.devgirls.healthmonitor.service;
 
+import com.devgirls.healthmonitor.dto.UserDTO;
 import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository repo;
+    private final UserRepository userRepository;
 
-    public UserService(UserRepository repo) {
-        this.repo = repo;
+    @Transactional(readOnly = true)
+    public UserDTO getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        return mapToDTO(user);
     }
 
-    public List<User> getAll() {
-        return repo.findAllWithDetails(); // <-- ИЗМЕНЕНО
+
+    @Transactional
+    public UserDTO updateUserProfile(Long userId, UserDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+
+        if (dto.getAge() != null) user.setAge(dto.getAge());
+        if (dto.getGender() != null) user.setGender(dto.getGender());
+        if (dto.getHeight() != null) user.setHeight(BigDecimal.valueOf(dto.getHeight()));
+        if (dto.getWeight() != null) user.setWeight(BigDecimal.valueOf(dto.getWeight()));
+
+        User savedUser = userRepository.save(user);
+        return mapToDTO(savedUser);
     }
 
-    public User getById(Long id) {
-        return repo.findByIdWithDetails(id).orElse(null); // <-- ИЗМЕНЕНО
-    }
-
-    public User save(User user) {
-        return repo.save(user);
-    }
-
-    public void delete(Long id) {
-        repo.deleteById(id);
-    }
-
-    public User update(Long id, User updatedUser) {
-        // Используем findByIdWithDetails, чтобы избежать N+1 при обновлении
-        User existing = repo.findByIdWithDetails(id).orElse(null); // <-- ИЗМЕНЕНО
-        if (existing == null) return null;
-
-        existing.setName(updatedUser.getName());
-        existing.setAge(updatedUser.getAge());
-        existing.setGender(updatedUser.getGender());
-        existing.setHeight(updatedUser.getHeight());
-        existing.setWeight(updatedUser.getWeight());
-        existing.setUpdatedAt(java.time.LocalDateTime.now());
-
-        return repo.save(existing);
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .height(user.getHeight() != null ? user.getHeight().doubleValue() : null)
+                .weight(user.getWeight() != null ? user.getWeight().doubleValue() : null)
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }

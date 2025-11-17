@@ -1,43 +1,28 @@
 package com.devgirls.healthmonitor.controller;
 
-import com.devgirls.healthmonitor.entity.User;
+import com.devgirls.healthmonitor.dto.UserDTO;
 import com.devgirls.healthmonitor.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
-@RequestMapping("users")
-@CrossOrigin(origins = "*")
+@RequestMapping("/users")
+@RequiredArgsConstructor
+//@CrossOrigin(origins = "*")
 public class UserController {
 
-    private final UserService service;
-
-    public UserController(UserService service) {
-        this.service = service;
-    }
-
-    @PostMapping
-    public User create(@RequestBody User user) {
-        return service.save(user);
-    }
-
-    @GetMapping
-    public List<User> getAll() {
-        return service.getAll();
-    }
+    private final UserService userService;
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
+        UserDTO userDTO = userService.getUserProfile(id);
+        return ResponseEntity.ok(userDTO);
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User userDetails) {
-        return service.update(id, userDetails);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        UserDTO updatedUser = userService.updateUserProfile(id, userDTO);
+        return ResponseEntity.ok(updatedUser);
     }
 }
