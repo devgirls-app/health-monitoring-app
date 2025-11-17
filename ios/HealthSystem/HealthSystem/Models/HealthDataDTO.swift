@@ -9,10 +9,13 @@ import Foundation
 
 struct HealthDataDTO: Codable {
     let userId: Int
-    let timestamp: String      // ISO8601 String
+    let timestamp: String
     let heartRate: Int?
     let steps: Int?
     let calories: Double?
     let sleepHours: Double?
+    let distance: Double?
+    let age: Int?
+    let gender: String?        
     let source: String?
 }
