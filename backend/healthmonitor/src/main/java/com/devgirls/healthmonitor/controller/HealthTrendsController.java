@@ -24,8 +24,6 @@ public class HealthTrendsController {
         this.userRepo = userRepo;
     }
 
-    // ===== CRUD API =====
-
     @GetMapping
     public List<HealthTrendsDTO> getAll() {
         return service.getAll().stream()
@@ -56,8 +54,6 @@ public class HealthTrendsController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
-
-    // ===== Helper conversion methods =====
 
     private HealthTrendsDTO toDTO(HealthTrends entity) {
         HealthTrendsDTO dto = new HealthTrendsDTO();

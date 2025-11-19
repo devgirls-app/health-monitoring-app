@@ -8,10 +8,18 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 public interface HealthDataRepository extends JpaRepository<HealthData, Long> {
 
-    // ✅ Исправленный метод
     List<HealthData> findAllByUser_UserId(Long userId);
+
+    Optional<HealthData> findFirstByUser_UserIdAndDayAndSource(
+            Long userId,
+            LocalDate day,
+            String source
+    );
 
     @Query(value = """
         SELECT 

@@ -41,7 +41,6 @@ public class RecommendationsService {
 
     public Recommendations fromDTO(RecommendationsDTO dto) {
         Recommendations rec = new Recommendations();
-        // Always ignore recId for new records
         rec.setRecommendationText(dto.getRecommendationText());
         rec.setSource(dto.getSource());
 
@@ -75,17 +74,38 @@ public class RecommendationsService {
     }
 
     @Transactional
-    public Recommendations create(Long userId, String text, String source, String severity) {
+    public Recommendations create(Long userId, String text, String source, String severity, LocalDateTime date) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        LocalDateTime createdAt = (date != null) ? date : LocalDateTime.now();
+        var day = createdAt.toLocalDate();
+        LocalDateTime from = day.atStartOfDay();
+        LocalDateTime to = from.plusDays(1);
+
+        var existingOpt = repo.findFirstByUser_UserIdAndSourceAndRecommendationTextAndCreatedAtBetweenOrderByCreatedAtDesc(
+                userId,
+                source,
+                text,
+                from,
+                to
+        );
+
+        if (existingOpt.isPresent()) {
+            Recommendations rec = existingOpt.get();
+            rec.setSeverity(severity);
+            rec.setCreatedAt(createdAt);
+            return repo.save(rec);
+        }
 
         Recommendations rec = new Recommendations();
         rec.setUser(user);
         rec.setRecommendationText(text);
-        rec.setSource(source);      // "rules"
-        rec.setSeverity(severity);  // "advisory" | "warning" | "critical"
-        rec.setCreatedAt(LocalDateTime.now());
+        rec.setSource(source);
+        rec.setSeverity(severity);
+        rec.setCreatedAt(createdAt);
 
         return repo.save(rec);
     }
+
 }

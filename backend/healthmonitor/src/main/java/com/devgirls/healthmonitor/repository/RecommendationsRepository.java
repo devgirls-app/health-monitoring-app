@@ -4,13 +4,25 @@ import com.devgirls.healthmonitor.entity.Recommendations;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecommendationsRepository extends JpaRepository<Recommendations, Long> {
 
-    // ✅ Custom query methods if needed
-    List<Recommendations> findByUserId(Long userId);
+    List<Recommendations> findByUser_UserIdAndSourceAndCreatedAtBetween(
+            Long userId,
+            String source,
+            LocalDateTime from,
+            LocalDateTime to
+    );
 
-    List<Recommendations> findBySource(String source);
+    Optional<Recommendations> findFirstByUser_UserIdAndSourceAndRecommendationTextAndCreatedAtBetweenOrderByCreatedAtDesc(
+            Long userId,
+            String source,
+            String recommendationText,
+            LocalDateTime from,
+            LocalDateTime to
+    );
 }

@@ -18,13 +18,13 @@ public class ModelRegistry {
     private Long modelId;
 
     @Column(name = "name", nullable = false)
-    private String name;     // e.g. stress_level
+    private String name;
 
     @Column(name = "version", nullable = false)
-    private String version;  // e.g. v1
+    private String version;
 
     @Column(name = "path", nullable = false)
-    private String path;     // e.g. s3://...
+    private String path;
 
     @Column(name = "is_active")
     private Boolean isActive;
