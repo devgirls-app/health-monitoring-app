@@ -7,6 +7,8 @@ import com.devgirls.healthmonitor.repository.HealthDataRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +29,57 @@ public class HealthDataService {
 
     // Save health data and trigger recommendation engine
     public HealthData save(HealthData data) {
-        // Attach user entity if userId is provided
+        // 1. Get user
         if (data.getUser() != null && data.getUser().getUserId() != null) {
             User user = userRepository.findById(data.getUser().getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found with id " + data.getUser().getUserId()));
             data.setUser(user);
+        } else {
+            throw new RuntimeException("User must be set on HealthData");
         }
 
-        HealthData saved = healthDataRepository.save(data);
+        if (data.getTimestamp() == null) {
+            throw new RuntimeException("Timestamp must be set on HealthData");
+        }
 
-        // Trigger recommendation engine
+        // 2. Find day
+        LocalDate day = data.getTimestamp().toLocalDate();
+        data.setDay(day);
+
+        // 3. Find existed data for the day + source
+        String source = data.getSource();
+        if (source == null) {
+            source = "unknown";
+            data.setSource(source);
+        }
+
+        var existingOpt = healthDataRepository.findFirstByUser_UserIdAndDayAndSource(
+                data.getUser().getUserId(),
+                day,
+                source
+        );
+
+        HealthData toSave;
+        if (existingOpt.isPresent()) {
+            // ---- UPDATE ----
+            HealthData existing = existingOpt.get();
+            existing.setTimestamp(data.getTimestamp());
+            existing.setHeartRate(data.getHeartRate());
+            existing.setSteps(data.getSteps());
+            existing.setCalories(data.getCalories());
+            existing.setSleepHours(data.getSleepHours());
+            existing.setUpdatedAt(LocalDateTime.now());
+            toSave = existing;
+        } else {
+            data.setCreatedAt(LocalDateTime.now());
+            data.setUpdatedAt(LocalDateTime.now());
+            toSave = data;
+        }
+
+        HealthData saved = healthDataRepository.save(toSave);
+
+        // 4. Recommendations
         recommendationEngineService.analyzeAndGenerate(saved);
-
         return saved;
     }
 

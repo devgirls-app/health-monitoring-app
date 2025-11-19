@@ -5,6 +5,8 @@ import com.devgirls.healthmonitor.entity.HealthData;
 import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.HealthDataRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
+import com.devgirls.healthmonitor.service.AggregationService;
+import com.devgirls.healthmonitor.service.HealthDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,8 @@ import java.math.BigDecimal;
 @Slf4j
 public class HealthDataKafkaConsumer {
 
+    private final HealthDataService healthDataService;
+    private final AggregationService aggregationService;
     private final HealthDataRepository healthDataRepo;
     private final UserRepository userRepo;
     private final ObjectMapper objectMapper;
@@ -45,8 +49,14 @@ public class HealthDataKafkaConsumer {
                     .user(user)
                     .build();
 
-            healthDataRepo.save(healthData);
-            log.info("HealthData saved from Kafka for user {} at {}", dto.getUserId(), dto.getTimestamp());
+            HealthData saved = healthDataService.save(healthData);
+            if (saved.getUser() != null && saved.getTimestamp() != null) {
+                aggregationService.aggregateDay(
+                        saved.getUser().getUserId(),
+                        saved.getTimestamp().toLocalDate()
+                );
+            }
+            log.info("HealthData processed from Kafka for user {} at {}", dto.getUserId(), dto.getTimestamp());
         } catch (Exception e) {
             log.error("Error processing Kafka health_data message: {}", message, e);
         }

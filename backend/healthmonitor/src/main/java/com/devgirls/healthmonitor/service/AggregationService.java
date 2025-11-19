@@ -4,10 +4,12 @@ import com.devgirls.healthmonitor.dto.DailyAggregatesDTO;
 import com.devgirls.healthmonitor.entity.*;
 import com.devgirls.healthmonitor.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Map;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AggregationService {
     private final HealthDataRepository healthDataRepository;
     private final DailyAggregatesRepository dailyAggregatesRepository;
@@ -53,7 +56,7 @@ public class AggregationService {
 
         agg.setUser(user);
         agg.setDate(day);
-        agg.setStepsTotal(steps != null ? steps.intValue() : null);
+        agg.setStepsTotal(steps.intValue());
         agg.setCaloriesTotal(calories);
         agg.setHrMean(hrMean);
         agg.setHrMax(hrMax);
@@ -65,44 +68,37 @@ public class AggregationService {
         var prevAggs = dailyAggregatesRepository
                 .findByUser_UserIdAndDateBetweenOrderByDateAsc(userId, from, to);
 
-        double sumSteps = 0.0;
-        int countSteps = 0;
+        double sumStepsPrev = 0.0;
+        int countStepsPrev = 0;
 
-        double sumSleep = 0.0;
-        int countSleep = 0;
+        double sumSleepPrev = 0.0;
+        int countSleepPrev = 0;
 
         for (DailyAggregates prev : prevAggs) {
-            if (prev.getStepsTotal() != null) {
-                sumSteps += prev.getStepsTotal();
-                countSteps++;
+            if (prev.getStepsTotal() != null && prev.getStepsTotal() > 0) {
+                sumStepsPrev += prev.getStepsTotal();
+                countStepsPrev++;
             }
-            if (prev.getSleepHoursTotal() != null) {
-                sumSleep += prev.getSleepHoursTotal().doubleValue();
-                countSleep++;
+            if (prev.getSleepHoursTotal() != null && prev.getSleepHoursTotal().compareTo(BigDecimal.ZERO) > 0) {
+                sumSleepPrev += prev.getSleepHoursTotal().doubleValue();
+                countSleepPrev++;
             }
         }
 
-        if (steps != null) {
-            sumSteps += steps.doubleValue();
-            countSteps++;
-        }
-        if (sleepHours != null) {
-            sumSleep += sleepHours.doubleValue();
-            countSleep++;
-        }
+        BigDecimal meanStepsPrev = (countStepsPrev > 0)
+                ? BigDecimal.valueOf(sumStepsPrev).divide(BigDecimal.valueOf(countStepsPrev), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
 
-        Double meanSteps = (countSteps > 0) ? (sumSteps / countSteps) : null;
-        Double meanSleep = (countSleep > 0) ? (sumSleep / countSleep) : null;
+        BigDecimal meanSleepPrev = (countSleepPrev > 0)
+                ? BigDecimal.valueOf(sumSleepPrev).divide(BigDecimal.valueOf(countSleepPrev), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
 
         BigDecimal dSteps7d = null;
         BigDecimal dSleep7d = null;
 
-        if (steps != null && meanSteps != null) {
-            dSteps7d = BigDecimal.valueOf(steps.doubleValue() - meanSteps);
-        }
-        if (sleepHours != null && meanSleep != null) {
-            dSleep7d = BigDecimal.valueOf(sleepHours.doubleValue() - meanSleep);
-        }
+        dSteps7d = steps.subtract(meanStepsPrev).setScale(2, RoundingMode.HALF_UP);
+
+        dSleep7d = sleepHours.subtract(meanSleepPrev).setScale(2, RoundingMode.HALF_UP);
 
         agg.setZHrMean(null);
         agg.setZSteps(null);
@@ -114,6 +110,11 @@ public class AggregationService {
         try {
             double prob = mlInferenceService.predictFatigue(saved);
 
+            log.info("ML features calculated for user {} on {}: Steps Delta={}; Sleep Delta={}",
+                    userId, day, dSteps7d, dSleep7d);
+            log.info("ML Probability: {}", prob);
+
+
             ModelRegistry model = modelRegistryRepository
                     .findFirstByNameAndIsActiveTrueOrderByCreatedAtDesc("fatigue_risk")
                     .orElse(null);
@@ -122,7 +123,7 @@ public class AggregationService {
                     .aggregate(saved)
                     .predictionType("fatigue_risk")
                     .probability(BigDecimal.valueOf(prob))
-                    .confidenceScore(BigDecimal.valueOf(prob)) // при желании можно завести отдельную метрику
+                    .confidenceScore(BigDecimal.valueOf(prob))
                     .resultDescription(String.format("Fatigue risk: %.2f", prob))
                     .model(model)
                     .build();
@@ -132,7 +133,7 @@ public class AggregationService {
             recommendationEngineService.evaluate(saved, prob);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("ML Inference failed for user {} on date {}", userId, day, e);
         }
 
         return saved;

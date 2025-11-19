@@ -39,34 +39,4 @@ public class HealthDataController {
     public List<HealthDataDTO> getByUser(@PathVariable Long userId) {
         return healthDataService.findByUserId(userId);
     }
-
-    // POST /healthdata → create new record
-    @PostMapping
-    public HealthDataDTO create(@RequestBody HealthDataDTO dto) {
-        User user = null;
-        if (dto.getUserId() != null) {
-            user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found with id " + dto.getUserId()));
-        }
-
-        HealthData data = HealthData.builder()
-                .user(user)
-                .timestamp(dto.getTimestamp())
-                .heartRate(dto.getHeartRate())
-                .steps(dto.getSteps())
-                .calories(dto.getCalories() != null ? BigDecimal.valueOf(dto.getCalories()) : null)
-                .sleepHours(dto.getSleepHours() != null ? BigDecimal.valueOf(dto.getSleepHours()) : null)
-                .source(dto.getSource())
-                .build();
-
-        HealthData saved = healthDataService.save(data);
-
-        if (saved.getUser() != null && saved.getTimestamp() != null) {
-            aggregationService.aggregateDay(
-                    saved.getUser().getUserId(),
-                    saved.getTimestamp().toLocalDate()
-            );
-        }
-        return healthDataService.convertToDTO(saved);
-    }
 }

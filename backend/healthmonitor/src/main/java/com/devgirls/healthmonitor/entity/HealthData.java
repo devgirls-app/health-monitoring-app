@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,6 +23,9 @@ public class HealthData {
 
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
+
+    @Column(name = "day")
+    private LocalDate day;
 
     @Column(name = "heart_rate")
     private Integer heartRate;

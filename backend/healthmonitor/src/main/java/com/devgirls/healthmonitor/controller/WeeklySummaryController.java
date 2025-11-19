@@ -16,11 +16,7 @@ public class WeeklySummaryController {
 
     private final WeeklySummaryService weeklySummaryService;
 
-    /**
-     * Example: POST /ml-test/weekly-fatigue/2/2025-11-10
-     * weekEnd = 2025-11-10 → analyze 2025-11-04 ... 2025-11-10
-     */
-    @PostMapping("/weekly-fatigue/{userId}/{weekEnd}")
+    @GetMapping("/weekly-fatigue/{userId}/{weekEnd}")
     public ResponseEntity<?> generateWeeklySummary(
             @PathVariable Long userId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekEnd

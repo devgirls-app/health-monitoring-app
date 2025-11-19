@@ -1,6 +1,5 @@
 -- ==========================================================
 -- V2 Script: Daily Aggregates and ML Pipeline
--- ✅ ИСПРАВЛЕНО: Таблицы в snake_case, Колонки в CamelCase, ID в BIGSERIAL/BIGINT
 -- ==========================================================
 
 CREATE TABLE IF NOT EXISTS daily_aggregates (

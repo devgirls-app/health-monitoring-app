@@ -34,9 +34,14 @@ public class RecommendationsController {
 
     @PostMapping
     public RecommendationsDTO create(@RequestBody RecommendationsDTO dto) {
-        Recommendations rec = service.fromDTO(dto);
-        rec.setRecId(null);
-        return service.toDTO(service.save(rec));
+        Recommendations rec = service.create(
+                dto.getUserId(),
+                dto.getRecommendationText(),
+                dto.getSource(),
+                null,
+                null
+        );
+        return service.toDTO(rec);
     }
 
     @PutMapping("/{id}")
