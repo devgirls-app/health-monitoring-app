@@ -41,7 +41,7 @@ final class HealthKitManager {
         }
     }
     
-    // MARK: - Fetch Today Snapshot
+    // MARK: - Fetch Today Snapshot (Для Дашборда: Сегодня)
     func fetchTodaySnapshot(manualHR: Int?, completion: @escaping (HealthSnapshot?) -> Void) {
         
         let group = DispatchGroup()
@@ -63,7 +63,7 @@ final class HealthKitManager {
         }
         
         let now = Date()
-                
+        
         group.enter()
         fetchSteps(for: now) { value, _ in
             if let v = value { steps = Int(v) }
@@ -115,6 +115,7 @@ final class HealthKitManager {
             let formatter = ISO8601DateFormatter()
             let isoTimestamp = formatter.string(from: now)
             
+            // Инициализация строго в соответствии с вашей структурой HealthSnapshot
             let snapshot = HealthSnapshot(
                 steps: steps,
                 averageHeartRate: hrAvg,
@@ -133,6 +134,57 @@ final class HealthKitManager {
         }
     }
     
+    // MARK: - Fetch History Snapshot (Для заполнения дырок: Прошлые дни)
+    func fetchSnapshot(for date: Date, completion: @escaping (HealthSnapshot?) -> Void) {
+        let group = DispatchGroup()
+        
+        var steps: Int?
+        var calories: Double?
+        var sleepHours: Double?
+        
+        group.enter()
+        fetchSteps(for: date) { value, _ in
+            if let v = value { steps = Int(v) }
+            group.leave()
+        }
+        
+        group.enter()
+        fetchCalories(for: date) { value in
+            calories = value
+            group.leave()
+        }
+        
+        group.enter()
+        fetchSleepHours(for: date) { value in
+            sleepHours = value
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            // Генерируем timestamp для исторической даты
+            let formatter = ISO8601DateFormatter()
+            let isoTimestamp = formatter.string(from: date)
+            
+            // Создаем упрощенный снапшот для истории
+            let snapshot = HealthSnapshot(
+                steps: steps,
+                averageHeartRate: nil, // Пульс пропускаем для истории
+                calories: calories,
+                sleepHours: sleepHours,
+                distance: nil,
+                manualHeartRate: nil,
+                timestamp: isoTimestamp,
+                age: nil,
+                gender: nil,
+                height: nil,
+                weight: nil
+            )
+            completion(snapshot)
+        }
+    }
+    
+    
+    // MARK: - Helper Methods
     
     private func fetchLatestSample(for identifier: HKQuantityTypeIdentifier, unit: HKUnit, completion: @escaping (Double?) -> Void) {
         guard let type = HKQuantityType.quantityType(forIdentifier: identifier) else {
@@ -150,11 +202,17 @@ final class HealthKitManager {
         }
         healthStore.execute(query)
     }
-        
+    
     func fetchSteps(for date: Date, completion: @escaping (Double?, Error?) -> Void) {
         guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { completion(nil, nil); return }
-        let start = Calendar.current.startOfDay(for: date)
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: date, options: .strictStartDate)
+        
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        // Конец дня = начало следующего дня
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil, nil); return }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        
         let query = HKStatisticsQuery(quantityType: stepType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
             guard let sum = result?.sumQuantity() else { completion(nil, error); return }
             completion(sum.doubleValue(for: .count()), nil)
@@ -164,8 +222,13 @@ final class HealthKitManager {
 
     func fetchCalories(for date: Date, completion: @escaping (Double?) -> Void) {
         guard let type = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else { completion(nil); return }
-        let start = Calendar.current.startOfDay(for: date)
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: date, options: .strictStartDate)
+        
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil); return }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, _ in
             let value = result?.sumQuantity()?.doubleValue(for: .kilocalorie())
             completion(value)
@@ -174,35 +237,62 @@ final class HealthKitManager {
     }
     
     func fetchDistance(for date: Date, completion: @escaping (Double?) -> Void) {
-         guard let type = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) else { completion(nil); return }
-         let start = Calendar.current.startOfDay(for: date)
-         let predicate = HKQuery.predicateForSamples(withStart: start, end: date, options: .strictStartDate)
-         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, _ in
-             let value = result?.sumQuantity()?.doubleValue(for: .meter())
-             completion(value)
-         }
-         healthStore.execute(query)
-     }
+        guard let type = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) else { completion(nil); return }
+        
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil); return }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        
+        let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, _ in
+            let value = result?.sumQuantity()?.doubleValue(for: .meter())
+            completion(value)
+        }
+        healthStore.execute(query)
+    }
     
     func fetchSleepHours(for date: Date, completion: @escaping (Double?) -> Void) {
-         guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { completion(nil); return }
-         let start = Calendar.current.startOfDay(for: date)
-         let predicate = HKQuery.predicateForSamples(withStart: start, end: date, options: [])
-         let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
-             guard let samples = samples as? [HKCategorySample] else { completion(nil); return }
-             var total = 0.0
-             for item in samples where item.value == HKCategoryValueSleepAnalysis.asleep.rawValue {
-                 total += item.endDate.timeIntervalSince(item.startDate)
-             }
-             completion(total / 3600.0)
-         }
-         healthStore.execute(query)
-     }
+        guard let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else { completion(nil); return }
+        
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil); return }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: [])
+        
+        let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+            guard let samples = samples as? [HKCategorySample] else { completion(nil); return }
+            var total = 0.0
+            
+            for item in samples {
+                if item.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue ||
+                    item.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+                    item.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue ||
+                    item.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue {
+                    
+                    let sampleStart = max(item.startDate, start)
+                    let sampleEnd = min(item.endDate, end)
+                    
+                    if sampleEnd > sampleStart {
+                        total += sampleEnd.timeIntervalSince(sampleStart)
+                    }
+                }
+            }
+            completion(total / 3600.0)
+        }
+        healthStore.execute(query)
+    }
     
     func fetchHeartRate(for date: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
         guard let type = HKQuantityType.quantityType(forIdentifier: .heartRate) else { completion(nil, nil); return }
-        let start = Calendar.current.startOfDay(for: date)
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: date, options: .strictStartDate)
+        
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil, nil); return }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        
         let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
             completion(samples as? [HKQuantitySample], error)
         }

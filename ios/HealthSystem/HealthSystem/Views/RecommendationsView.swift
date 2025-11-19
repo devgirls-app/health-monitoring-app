@@ -6,15 +6,54 @@
 //
 
 import UIKit
+import SnapKit
 
-class RecommendationsView: UIView {
+final class RecommendationsView: UIView {
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    let tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .insetGrouped)
+        tableView.register(RecommendationCell.self, forCellReuseIdentifier: RecommendationCell.identifier)
+        return tableView
+    }()
+
+    private let emptyStateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "No insights available yet.\nTry syncing new data!"
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .systemBackground
+        setupUI()
     }
-    */
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        addSubview(tableView)
+        addSubview(emptyStateLabel)
+        
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        emptyStateLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(40)
+        }
+        
+        tableView.isHidden = true
+        emptyStateLabel.isHidden = false
+    }
 
+    func toggleEmptyState(isEmpty: Bool) {
+        tableView.isHidden = isEmpty
+        emptyStateLabel.isHidden = !isEmpty
+    }
 }

@@ -1,4 +1,4 @@
 #include "Pods/Target Support Files/Pods-HealthSystem/Pods-HealthSystem.debug.xcconfig"
 
 API_BASE_SCHEME = https
-API_BASE_HOST = anybody-commented-covered-manga.trycloudflare.com
+API_BASE_HOST = portsmouth-dosage-only-economic.trycloudflare.com

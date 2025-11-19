@@ -7,7 +7,6 @@ com/devgirls/healthmonitor/service/AggregationService.class
 com/devgirls/healthmonitor/repository/DeviceRepository.class
 com/devgirls/healthmonitor/dto/DailyAggregatesDTO$DailyAggregatesDTOBuilder.class
 com/devgirls/healthmonitor/entity/ModelRegistry$ModelRegistryBuilder.class
-com/devgirls/healthmonitor/kafka/producer/HealthDataProducer.class
 com/devgirls/healthmonitor/repository/DayLabelsRepository.class
 com/devgirls/healthmonitor/controller/IngestController.class
 com/devgirls/healthmonitor/entity/User$UserBuilder.class
@@ -40,6 +39,7 @@ com/devgirls/healthmonitor/entity/MLInsights$MLInsightsBuilder.class
 com/devgirls/healthmonitor/HealthmonitorApplication.class
 com/devgirls/healthmonitor/dto/DeviceDTO$DeviceDTOBuilder.class
 com/devgirls/healthmonitor/entity/HealthTrends$HealthTrendsBuilder.class
+com/devgirls/healthmonitor/kafka/producer/HealthDataKafkaProducer.class
 com/devgirls/healthmonitor/entity/KafkaLogs$KafkaLogsBuilder.class
 com/devgirls/healthmonitor/controller/KafkaLogsController.class
 com/devgirls/healthmonitor/controller/AuthController.class
