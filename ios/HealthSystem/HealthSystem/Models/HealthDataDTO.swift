@@ -18,4 +18,6 @@ struct HealthDataDTO: Codable {
     let age: Int?
     let gender: String?        
     let source: String?
+    let height: Double?
+    let weight: Double?
 }

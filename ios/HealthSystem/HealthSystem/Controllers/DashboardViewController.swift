@@ -5,10 +5,6 @@
 
 import UIKit
 
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-final class DashboardViewController: UIViewController {
-    
-=======
 // MARK: - Date Helpers
 extension Date {
     var startOfDay: Date {
@@ -18,9 +14,10 @@ extension Date {
 
 final class DashboardController: UIViewController {
 
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
     // MARK: - Inputs
-    private let currentUserId: Int = 1
+    private var currentUserId: Int? {
+        return AuthManager.shared.getUserId()
+    }
     
     // MARK: - State
     private var userProfile: UserProfile?
@@ -54,9 +51,6 @@ final class DashboardController: UIViewController {
         self.tabBarController?.selectedIndex = 2
     }
     
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-    // MARK: - HealthKit flow
-=======
     // MARK: - Calculation Helper
     private func calculateDaysToSync(calendar: Calendar) -> [Date] {
         let today = Date()
@@ -124,8 +118,11 @@ final class DashboardController: UIViewController {
             let weekEndString = formatter.string(from: weekEnd)
 
             if let userId = currentUserId {
-                 print("Forcing Weekly Summary generation...")
-                print("DEBUG Trigger: \(String(describing: NetworkManager.shared.getBaseURLString))/ml-test/weekly-fatigue/\(userId)/\(weekEndString)")
+                 print("⚡️ Forcing Weekly Summary generation...")
+                 
+                 let baseUrl = NetworkManager.shared.getBaseURLString()
+                 print("DEBUG Trigger path: \(baseUrl)/ml-test/weekly-fatigue/\(userId)/\(weekEndString)")
+                 
                  NetworkManager.shared.debugTriggerWeeklySummary(userId: userId, date: weekEndString) { result in
                      if case .success = result {
                          print("Weekly Summary GENERATED! Pull to refresh recommendations.")
@@ -147,6 +144,7 @@ final class DashboardController: UIViewController {
                 return
             }
             
+            // Пропускаем сегодняшний день (daysToSync[0]), так как он уже был отправлен в fetchDataAndSync.
             if index > 0 && (snapshot.steps ?? 0) > 10 {
                 let timestampString = DateFormatters.localNoZ.string(from: pastDate)
                 
@@ -183,7 +181,6 @@ final class DashboardController: UIViewController {
     }
     
     // MARK: - HealthKit & Data Flow (Current Day)
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
     
     private func requestHealthKitAndThenRefreshDashboard() {
         HealthKitManager.shared.requestAuthorization { [weak self] success, error in
@@ -191,7 +188,7 @@ final class DashboardController: UIViewController {
             
             if success {
                 print("HealthKit access granted")
-                self.collectSnapshotAndSend()
+                self.fetchDataAndSync()
             } else {
                 print("HealthKit access denied:", error?.localizedDescription ?? "unknown")
                 self.syncProfileAndFetchUI(snapshot: nil)
@@ -199,7 +196,7 @@ final class DashboardController: UIViewController {
         }
     }
     
-    private func collectSnapshotAndSend() {
+    private func fetchDataAndSync() {
         let manualHR: Int? = nil
         
         HealthKitManager.shared.fetchTodaySnapshot(manualHR: manualHR) { [weak self] (snapshot: HealthSnapshot?) in
@@ -216,47 +213,23 @@ final class DashboardController: UIViewController {
                 self.updateMetricsUI(with: snapshot)
             }
             
-            print("Sending snapshot:", snapshot)
+            let dto = snapshot.toDTO(userId: self.currentUserId ?? 0)
             
-            let dto = snapshot.toDTO(userId: self.currentUserId)
-            
+            // ОТПРАВКА В KAFKA
             NetworkManager.shared.postHealthData(dto) { result in
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-                switch result {
-                case .success:
-                    print("Health snapshot sent")
-                    self.runAggregationAndFetchDashboard()
-                case .failure(let error):
-                    print("Failed to send snapshot:", error)
-                    self.fetchDashboardData()
-=======
+                // ЖЕСТКАЯ ПРОВЕРКА УСПЕХА!
                 if case .success = result {
                     print("Today's snapshot sent")
                     self.syncProfileAndFetchUI(snapshot: snapshot)
                 } else {
                     print("Failed to send snapshot (403 or other failure). Stopping sync chain.")
                     self.fetchServerDataOnly()
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
                 }
             }
         }
     }
     
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-    private func runAggregationAndFetchDashboard() {
-        let today = Date()
-        let todayString = DateFormatters.yyyyMMdd.string(from: today)
-        
-        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let summary):
-                print("Aggregation done:", summary)
-                self.fetchDashboardData()
-            case .failure(let error):
-                print("Aggregation error:", error)
-                self.fetchDashboardData()
-=======
+    // СИНХРОНИЗАЦИЯ ПРОФИЛЯ и ЗАПУСК ФОНОВОЙ РАБОТЫ
     private func syncProfileAndFetchUI(snapshot: HealthSnapshot?) {
         guard AuthManager.shared.isAuthenticated else {
             print("Token expired before syncProfileAndFetchUI. Aborting.")
@@ -285,47 +258,38 @@ final class DashboardController: UIViewController {
                 print("Failed to sync profile.")
             }
             
+            // 1. Обновляем UI после синхронизации профиля
             self?.fetchServerDataOnly()
             
+            // 2. ЗАПУСКАЕМ СИНХРОНИЗАЦИЮ ИСТОРИИ ТОЛЬКО ПОСЛЕ УСПЕШНОГО ОБНОВЛЕНИЯ ПРОФИЛЯ.
             if success {
                  self?.syncMissingDaysSequentially()
             } else {
                  print("Skipping history sync due to profile sync failure.")
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
             }
         }
     }
     
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-    // MARK: - Networking
-    private func fetchDashboardData() {
-        DispatchQueue.main.async {
-            self.mainView.setLoading(true)
-        }
-=======
     // MARK: - Fetching Server Data
     
     private func fetchServerDataOnly() {
         guard let userId = currentUserId else { return }
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
         
         let group = DispatchGroup()
         
+        // 1. Профиль
         group.enter()
-        NetworkManager.shared.fetchUserProfile(userId: currentUserId) { [weak self] result in
+        NetworkManager.shared.fetchUserProfile(userId: userId) { [weak self] result in
             defer { group.leave() }
             if case .success(let profile) = result {
                 self?.userProfile = profile
             }
         }
         
+        // 2. Рекомендации отдельно
         var fetchedRecs: [HealthRecommendation] = []
         group.enter()
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-        NetworkManager.shared.runAggregate(userId: currentUserId, date: todayString) { [weak self] result in
-=======
         NetworkManager.shared.fetchRecommendations { result in
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
             defer { group.leave() }
             if case .success(let list) = result {
                 fetchedRecs = list.filter { $0.userId == userId }
@@ -371,18 +335,9 @@ final class DashboardController: UIViewController {
             return
         }
         
-<<<<<<< Updated upstream:ios/HealthSystem/HealthSystem/Controllers/DashboardViewController.swift
-        let hr  = Int((dailySummary?.hrMean ?? 0).rounded())
-        let st  = dailySummary?.stepsTotal ?? 0
-        let cal = Int((dailySummary?.caloriesTotal ?? 0).rounded())
-        let sl  = dailySummary?.sleepHoursTotal ?? 0
-        
-        mainView.updateStats(hr: hr, steps: st, calories: cal, sleep: sl)
-=======
         if let latest = recs.sorted(by: { $0.uiDate > $1.uiDate }).first {
             mainView.updateRecommendation(text: latest.recommendationText)
             print("Showing Rec: \(latest.uiTitle)")
         }
->>>>>>> Stashed changes:ios/HealthSystem/HealthSystem/Controllers/DashboardController.swift
     }
 }

@@ -19,6 +19,8 @@ struct HealthSnapshot: Codable {
     
     let age: Int?
     let gender: String?
+    let height: Double?
+    let weight: Double?
 
 
     func toDTO(userId: Int) -> HealthDataDTO {
@@ -32,7 +34,9 @@ struct HealthSnapshot: Codable {
             distance: self.distance,
             age: self.age,
             gender: self.gender,
-            source: "iOS"
+            source: "iOS",
+            height: self.height,
+            weight: self.weight
         )
     }
 }

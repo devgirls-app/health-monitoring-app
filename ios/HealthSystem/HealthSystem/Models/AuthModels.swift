@@ -13,6 +13,7 @@ struct LoginResponse: Codable {
 
 struct RegisterRequest: Codable {
     let name: String
+    let surname: String
     let email: String
     let password: String
 }

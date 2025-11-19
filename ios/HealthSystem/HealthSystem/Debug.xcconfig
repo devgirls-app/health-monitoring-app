@@ -1,8 +1,4 @@
 #include "Pods/Target Support Files/Pods-HealthSystem/Pods-HealthSystem.debug.xcconfig"
 
 API_BASE_SCHEME = https
-<<<<<<< Updated upstream
-API_BASE_HOST = author-loan-potter-heart.trycloudflare.com 
-=======
-API_BASE_HOST = must-reminder-setting-projector.trycloudflare.com
->>>>>>> Stashed changes
+API_BASE_HOST = author-loan-potter-heart.trycloudflare.com

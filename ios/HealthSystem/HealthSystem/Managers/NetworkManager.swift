@@ -1,8 +1,8 @@
 //
-//  NetworkManager.swift
-//  HealthSystem
+//  NetworkManager.swift
+//  HealthSystem
 //
-//  Created by Aruuke Turgunbaeva on 22/10/25.
+//  Created by Aruuke Turgunbaeva on 22/10/25.
 //
 
 import Foundation
@@ -82,29 +82,14 @@ final class NetworkManager {
     }
     
     private func handleResponse<T: Decodable>(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<T, Error>) -> Void) {
-<<<<<<< Updated upstream
-        if let error = error {
-=======
         print("\n--- INCOMING RESPONSE ---")
         
         if let error = error {
             print("Transport Error: \(error.localizedDescription)")
->>>>>>> Stashed changes
             return completion(.failure(error))
         }
         
         guard let http = response as? HTTPURLResponse else {
-<<<<<<< Updated upstream
-            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
-        }
-        
-        guard (200..<300).contains(http.statusCode) else {
-            let message = String(data: data ?? Data(), encoding: .utf8)
-            switch http.statusCode {
-            case 400: completion(.failure(NetworkError.badRequest(message)))
-            case 401: completion(.failure(NetworkError.unauthorized))
-            case 403: completion(.failure(NetworkError.forbidden))
-=======
             print("Error: Not HTTP response")
             return completion(.failure(NetworkError.unknown("Invalid response from server.")))
         }
@@ -135,7 +120,6 @@ final class NetworkManager {
             
             switch http.statusCode {
             case 400: completion(.failure(NetworkError.badRequest(message)))
->>>>>>> Stashed changes
             case 404: completion(.failure(NetworkError.notFound))
             default: completion(.failure(NetworkError.serverError(message)))
             }
@@ -143,46 +127,12 @@ final class NetworkManager {
         }
         
         guard let data = data, !data.isEmpty else {
-<<<<<<< Updated upstream
-=======
             print("Error: No Data to decode")
->>>>>>> Stashed changes
             return completion(.failure(NetworkError.noData))
         }
         
         do {
             let decodedObject = try self.jsonDecoder.decode(T.self, from: data)
-<<<<<<< Updated upstream
-            completion(.success(decodedObject))
-        } catch {
-            print("Decoding Error: \(error)")
-            completion(.failure(NetworkError.decodingError(error)))
-        }
-    }
-    
-    private func handleVoidResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<Void, Error>) -> Void) {
-        if let error = error {
-            return completion(.failure(error))
-        }
-        
-        guard let http = response as? HTTPURLResponse else {
-            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
-        }
-        
-        guard (200..<300).contains(http.statusCode) else {
-            let message = String(data: data ?? Data(), encoding: .utf8)
-            switch http.statusCode {
-            case 400: completion(.failure(NetworkError.badRequest(message)))
-            case 401: completion(.failure(NetworkError.unauthorized))
-            case 403: completion(.failure(NetworkError.forbidden))
-            case 404: completion(.failure(NetworkError.notFound))
-            default: completion(.failure(NetworkError.serverError(message)))
-            }
-            return
-        }
-        
-        completion(.success(()))
-=======
             print("Decoding Success")
             completion(.success(decodedObject))
         } catch {
@@ -190,7 +140,6 @@ final class NetworkManager {
             completion(.failure(NetworkError.decodingError(error)))
         }
         print("----------------------------\n")
->>>>>>> Stashed changes
     }
     
     private func handleVoidResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -223,7 +172,7 @@ final class NetworkManager {
             return completion(.failure(NetworkError.unauthorized))
         }
         
-        guard (200..<300).contains(http.statusCode) else {
+        guard (200..<300).contains(http.statusCode) || http.statusCode == 202 else { // 202 - Accepted for Kafka
             print("Server returned error status code")
             let message = String(data: data ?? Data(), encoding: .utf8)
             
@@ -253,7 +202,7 @@ final class NetworkManager {
         }.resume()
     }
     
-    // MARK: - Auth Endpoints (ДОБАВЛЕНО)
+    // MARK: - Auth Endpoints
     
     func login(email: String, password: String, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
         let url = NetworkManager.baseURL.appendingPathComponent("auth/login")
@@ -280,7 +229,7 @@ final class NetworkManager {
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body = RegisterRequest(name: name, email: email, password: password)
+        let body = RegisterRequest(name: name, surname: surname, email: email, password: password)
         do { req.httpBody = try jsonEncoder.encode(body) }
         catch { return completion(.failure(error)) }
         
@@ -323,9 +272,43 @@ final class NetworkManager {
         }.resume()
     }
     
-    // MARK: - Protected Endpoints
+    // MARK: - User & Health Data Endpoints
     
-    // POST /health-data
+    func syncUserProfile(userId: Int, age: Int?, weight: Double?, height: Double?, gender: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+        
+        guard let url = URL(string: "\(NetworkManager.baseURL.absoluteString)/users/\(userId)") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = AuthManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("Token attached to PUT request: \(token.prefix(10))...")
+        } else {
+            print("No token found for syncUserProfile request!")
+        }
+        
+        let body: [String: Any] = [
+            "age": age as Any,
+            "weight": weight as Any,
+            "height": height as Any,
+            "gender": gender as Any
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            self.handleVoidResponse(data: data, response: response, error: error, completion: completion)
+        }.resume()
+    }
+    
+    // POST /ingest/health-data (Kafka)
     func postHealthData(_ dto: HealthDataDTO, completion: @escaping (Result<Void, Error>) -> Void) {
         let url = NetworkManager.baseURL.appendingPathComponent("/ingest/health-data")
         print("POST", url.absoluteString)
@@ -356,50 +339,11 @@ final class NetworkManager {
         }.resume()
     }
     
-    // POST /aggregates/run/{userId}/{date}
-    func runAggregate(userId: Int, date: String, completion: @escaping (Result<DailySummary, Error>) -> Void) {
-        let url = NetworkManager.baseURL.appendingPathComponent("aggregates/run/\(userId)/\(date)")
-        print("POST", url.absoluteString)
-        
-        guard let req = createAuthorizedRequest(url: url, httpMethod: "POST") else {
-            return completion(.failure(NetworkError.unauthorized))
-        }
-        
-        URLSession.shared.dataTask(with: req) { data, resp, err in
-            self.handleResponse(data: data, response: resp, error: err, completion: completion)
-        }.resume()
-    }
-    
-    // POST /ml-test/weekly-fatigue/{userId}/{weekEnd}
-    func runWeeklySummary(userId: Int, weekEnd: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let url = NetworkManager.baseURL.appendingPathComponent("ml-test/weekly-fatigue/\(userId)/\(weekEnd)")
-        print("POST", url.absoluteString)
-        
-        guard let req = createAuthorizedRequest(url: url, httpMethod: "POST") else {
-            return completion(.failure(NetworkError.unauthorized))
-        }
-        
-        URLSession.shared.dataTask(with: req) { data, resp, err in
-            if let err = err { return completion(.failure(err)) }
-            
-            guard let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-                return completion(.failure(NetworkError.unknown("Failed to run summary")))
-            }
-            
-            guard let data = data else { return completion(.failure(NetworkError.noData)) }
-            
-            if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let msg = obj["message"] as? String {
-                completion(.success(msg))
-            } else {
-                completion(.success(String(data: data, encoding: .utf8) ?? "OK"))
-            }
-        }.resume()
-    }
+    // MARK: - ML & Aggregation Endpoints
     
     func debugTriggerWeeklySummary(userId: Int, date: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let url = NetworkManager.baseURL.appendingPathComponent("ml-test/weekly-fatigue/\(userId)/\(date)")
-        print("DEBUG Trigger: \(url.absoluteString)")
+        print("GET", url.absoluteString)
         
         guard let req = createAuthorizedRequest(url: url, httpMethod: "GET") else {
             return completion(.failure(NetworkError.unauthorized))
