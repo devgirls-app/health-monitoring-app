@@ -5,8 +5,15 @@
 
 import UIKit
 
+// MARK: - Date Helpers
+extension Date {
+    var startOfDay: Date {
+        return Calendar.current.startOfDay(for: self)
+    }
+}
+
 final class DashboardController: UIViewController {
-    
+
     // MARK: - Inputs
     private var currentUserId: Int? {
         return AuthManager.shared.getUserId()
@@ -14,7 +21,6 @@ final class DashboardController: UIViewController {
     
     // MARK: - State
     private var userProfile: UserProfile?
-    private var dailySummary: DailySummary?
     
     // MARK: - View
     private let mainView = DashboardView()
@@ -27,7 +33,14 @@ final class DashboardController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupActions()
+        
+        // 1. Current day (UI + Sync)
         requestHealthKitAndThenRefreshDashboard()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
     private func setupActions() {
@@ -35,10 +48,150 @@ final class DashboardController: UIViewController {
     }
     
     @objc private func handleMoreTap() {
-        print("More button tapped")
+        self.tabBarController?.selectedIndex = 2
     }
     
-    // MARK: - HealthKit & Data Flow
+    // MARK: - Calculation Helper
+    
+    /**
+     * Calculates the array of dates from the start of the previous full week (Monday) up to today.
+     */
+    private func calculateDaysToSync(calendar: Calendar) -> [Date] {
+        let today = Date()
+        var daysToSync: [Date] = []
+        var mutableCalendar = calendar
+        
+        // Устанавливаем понедельник как начало недели
+        mutableCalendar.firstWeekday = 2
+
+        // 1. Находим начало текущей недели (Понедельник)
+        guard let startOfCurrentWeek = mutableCalendar.date(from: mutableCalendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)) else {
+            return []
+        }
+
+        // 2. Находим начало предыдущей недели (Понедельник - 7 дней)
+        guard let startOfPreviousWeek = mutableCalendar.date(byAdding: .day, value: -7, to: startOfCurrentWeek) else {
+            return []
+        }
+
+        // 3. Генерируем список дат, начиная с Сегодня и до Понедельника прошлой недели
+        var currentDate = today.startOfDay
+        let targetBoundary = startOfPreviousWeek.startOfDay
+
+        while currentDate >= targetBoundary {
+            daysToSync.append(currentDate)
+            guard let previousDay = mutableCalendar.date(byAdding: .day, value: -1, to: currentDate) else { break }
+            currentDate = previousDay.startOfDay
+        }
+        
+        return daysToSync
+    }
+
+    // MARK: - History Sync (Sequential Sync)
+    
+    private func syncMissingDaysSequentially() {
+        guard AuthManager.shared.isAuthenticated else {
+            print("Auth check failed. Skipping history sync.")
+            return
+        }
+        guard currentUserId != nil else { return }
+        
+        let daysToSync = calculateDaysToSync(calendar: Calendar.current)
+        print("Starting background history sync (Range: \(daysToSync.count) days).")
+        
+        syncNextDay(daysToSync: daysToSync, index: 0)
+    }
+
+    private func syncNextDay(daysToSync: [Date], index: Int) {
+        guard AuthManager.shared.isAuthenticated else {
+            print("Token expired mid-sync. Aborting history sync.")
+            return
+        }
+        
+        guard index < daysToSync.count else {
+            print("History sync complete.")
+            
+            // ВЫЧИСЛЕНИЕ ДАТЫ ОТЧЕТА (ПРОШЛОЕ ВОСКРЕСЕНЬЕ)
+            let calendar = Calendar.current
+            let today = Date()
+            let weekday = calendar.component(.weekday, from: today) // 1 = воскресенье, 2 = понедельник...
+            
+            // Если сегодня воскресенье (1), вычитаем 7 дней. Иначе вычитаем (weekday - 1).
+            let daysToSubtract = (weekday == 1) ? 7 : (weekday - 1)
+
+            guard let weekEnd = calendar.date(byAdding: .day, value: -daysToSubtract, to: today) else {
+                return
+            }
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let weekEndString = formatter.string(from: weekEnd)
+
+            // ЗАПУСК ГЕНЕРАЦИИ СВОДКИ
+            if let userId = currentUserId {
+                 print("⚡️ Forcing Weekly Summary generation...")
+                 
+                 let baseUrl = NetworkManager.shared.getBaseURLString()
+                 print("DEBUG Trigger path: \(baseUrl)/ml-test/weekly-fatigue/\(userId)/\(weekEndString)")
+                 
+                 NetworkManager.shared.debugTriggerWeeklySummary(userId: userId, date: weekEndString) { result in
+                     if case .success = result {
+                         print("✅ Weekly Summary GENERATED! Pull to refresh recommendations.")
+                     } else {
+                         print("❌ Failed to generate summary: \(result)")
+                     }
+                 }
+            }
+            return
+        }
+
+        guard let userId = currentUserId else { return }
+
+        let pastDate = daysToSync[index]
+
+        HealthKitManager.shared.fetchSnapshot(for: pastDate) { [weak self] snapshot in
+            guard let snapshot = snapshot, let self = self else {
+                self?.syncNextDay(daysToSync: daysToSync, index: index + 1)
+                return
+            }
+            
+            // Пропускаем сегодняшний день (daysToSync[0]), так как он уже был отправлен в fetchDataAndSync.
+            if index > 0 && (snapshot.steps ?? 0) > 10 {
+                let timestampString = DateFormatters.localNoZ.string(from: pastDate)
+                
+                let dto = HealthDataDTO(
+                    userId: userId,
+                    timestamp: timestampString,
+                    heartRate: 0,
+                    steps: snapshot.steps,
+                    calories: snapshot.calories,
+                    sleepHours: snapshot.sleepHours,
+                    distance: snapshot.distance,
+                    age: snapshot.age,
+                    gender: snapshot.gender,
+                    source: "healthkit_history",
+                    height: snapshot.height,
+                    weight: snapshot.weight
+                )
+                
+                NetworkManager.shared.postHealthData(dto) { [weak self] result in
+                    let logDate = DateFormatters.yyyyMMdd.string(from: pastDate)
+                    
+                    if case .success = result {
+                        print("History synced for: \(logDate)")
+                    } else {
+                        print("Failed to sync history for: \(logDate) (Failure: \(result))")
+                    }
+                    
+                    self?.syncNextDay(daysToSync: daysToSync, index: index + 1)
+                }
+            } else {
+                self.syncNextDay(daysToSync: daysToSync, index: index + 1)
+            }
+        }
+    }
+    
+    // MARK: - HealthKit & Data Flow (Current Day)
     
     private func requestHealthKitAndThenRefreshDashboard() {
         HealthKitManager.shared.requestAuthorization { [weak self] success, error in
@@ -49,7 +202,7 @@ final class DashboardController: UIViewController {
                 self.fetchDataAndSync()
             } else {
                 print("HealthKit access denied:", error?.localizedDescription ?? "unknown")
-                self.fetchDashboardData()
+                self.syncProfileAndFetchUI(snapshot: nil)
             }
         }
     }
@@ -59,129 +212,124 @@ final class DashboardController: UIViewController {
         
         HealthKitManager.shared.fetchTodaySnapshot(manualHR: manualHR) { [weak self] (snapshot: HealthSnapshot?) in
             guard let self = self else { return }
+            
             guard let snapshot = snapshot else {
                 print("Failed to build snapshot")
-                self.fetchDashboardData()
+                self.syncProfileAndFetchUI(snapshot: nil)
                 return
             }
             
             DispatchQueue.main.async {
-                print("Updating UI with LOCAL snapshot")
-                self.updateUI(with: snapshot)
+                print("UI Updated with LOCAL HealthKit snapshot")
+                self.updateMetricsUI(with: snapshot)
             }
             
             let dto = snapshot.toDTO(userId: self.currentUserId ?? 0)
             
+            // ОТПРАВКА В KAFKA
             NetworkManager.shared.postHealthData(dto) { result in
-                switch result {
-                case .success:
-                    print("Health snapshot sent")
-                case .failure(let error):
-                    print("Failed to send snapshot:", error)
+                // ЖЕСТКАЯ ПРОВЕРКА УСПЕХА!
+                if case .success = result {
+                    print("Today's snapshot sent")
+                    self.syncProfileAndFetchUI(snapshot: snapshot)
+                } else {
+                    print("Failed to send snapshot (403 or other failure). Stopping sync chain.")
+                    self.fetchServerDataOnly()
                 }
-                
-                self.syncProfileAndAggregate(snapshot: snapshot)
             }
         }
     }
     
-    private func syncProfileAndAggregate(snapshot: HealthSnapshot) {
+    // СИНХРОНИЗАЦИЯ ПРОФИЛЯ и ЗАПУСК ФОНОВОЙ РАБОТЫ
+    private func syncProfileAndFetchUI(snapshot: HealthSnapshot?) {
+        guard AuthManager.shared.isAuthenticated else {
+            print("Token expired before syncProfileAndFetchUI. Aborting.")
+            self.fetchServerDataOnly()
+            return
+        }
         guard let userId = self.currentUserId else {
-            print("⚠️ User ID not found, skipping sync")
+            self.fetchServerDataOnly()
             return
         }
 
-        print("🔄 Syncing profile for User ID: \(userId)")
-        
         NetworkManager.shared.syncUserProfile(
             userId: userId,
-            age: snapshot.age,
-            weight: snapshot.weight,
-            height: snapshot.height,
-            gender: snapshot.gender
-        ) { result in
-            switch result {
-            case .success:
-                print("User profile synced successfully!")
-            case .failure(let error):
-                print("Failed to sync profile: \(error)")
+            age: snapshot?.age,
+            weight: snapshot?.weight,
+            height: snapshot?.height,
+            gender: snapshot?.gender
+        ) { [weak self] result in
+            
+            var success = false
+            if case .success = result {
+                success = true
+                print("User profile synced.")
+            } else {
+                success = false
+                print("Failed to sync profile.")
             }
             
-            self.runAggregationAndFetchDashboard()
-        }
-    }
-    
-    private func runAggregationAndFetchDashboard() {
-        guard let userId = currentUserId else { return }
-        
-        let today = Date()
-        let todayString = DateFormatters.yyyyMMdd.string(from: today)
-        
-        NetworkManager.shared.runAggregate(userId: userId, date: todayString) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let summary):
-                print("Aggregation done:", summary)
-                self.fetchDashboardData()
-            case .failure(let error):
-                print("Aggregation error:", error)
-                self.fetchDashboardData()
+            // 1. Обновляем UI после синхронизации профиля
+            self?.fetchServerDataOnly()
+            
+            // 2. ЗАПУСКАЕМ СИНХРОНИЗАЦИЮ ИСТОРИИ ТОЛЬКО ПОСЛЕ УСПЕШНОГО ОБНОВЛЕНИЯ ПРОФИЛЯ.
+            if success {
+                 self?.syncMissingDaysSequentially()
+            } else {
+                 print("Skipping history sync due to profile sync failure.")
             }
         }
     }
     
-    // MARK: - Fetching Data for UI
-    private func fetchDashboardData() {
+    // MARK: - Fetching Server Data
+    
+    private func fetchServerDataOnly() {
         guard let userId = currentUserId else { return }
-
-        DispatchQueue.main.async {
-            self.mainView.setLoading(true)
-        }
         
         let group = DispatchGroup()
-        var fetchError: Error?
         
+        // 1. Профиль
         group.enter()
         NetworkManager.shared.fetchUserProfile(userId: userId) { [weak self] result in
             defer { group.leave() }
-            switch result {
-            case .success(let profile):
+            if case .success(let profile) = result {
                 self?.userProfile = profile
-            case .failure(let error):
-                fetchError = error
             }
         }
         
-        let today = Date()
-        let todayString = DateFormatters.yyyyMMdd.string(from: today)
-        
+        // 2. Рекомендации отдельно
+        var fetchedRecs: [HealthRecommendation] = []
         group.enter()
-        NetworkManager.shared.runAggregate(userId: userId, date: todayString) { [weak self] result in
+        NetworkManager.shared.fetchRecommendations { result in
             defer { group.leave() }
-            switch result {
-            case .success(let summary):
-                self?.dailySummary = summary
-            case .failure(let error):
-                fetchError = error
+            if case .success(let list) = result {
+                fetchedRecs = list.filter { $0.userId == userId }
             }
         }
-        
+
         group.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            self.mainView.setLoading(false)
             
-            if let err = fetchError {
-                print("Error fetching dashboard data:", err.localizedDescription)
-                return
+            if let profile = self.userProfile {
+                self.userProfile = UserProfile(
+                    userId: profile.userId,
+                    name: profile.name,
+                    age: profile.age,
+                    gender: profile.gender,
+                    height: profile.height,
+                    weight: profile.weight,
+                    recommendations: fetchedRecs
+                )
             }
             
-            print("Dashboard data loaded.")
-            self.updateUIFromNetworkData()
+            print("User Profile & Recommendations loaded")
+            self.updateRecommendationUI()
         }
     }
     
-    // MARK: - UI Updates Handlers
-    private func updateUI(with localSnapshot: HealthSnapshot) {
+    // MARK: - UI Updates
+    
+    private func updateMetricsUI(with localSnapshot: HealthSnapshot) {
         mainView.updateStats(
             hr: localSnapshot.averageHeartRate ?? 0,
             steps: localSnapshot.steps ?? 0,
@@ -190,17 +338,17 @@ final class DashboardController: UIViewController {
         )
     }
     
-    private func updateUIFromNetworkData() {
+    private func updateRecommendationUI() {
         mainView.updateGreeting(name: userProfile?.name)
         
-        let recText = userProfile?.recommendations?.first?.recommendationText
-        mainView.updateRecommendation(text: recText)
+        guard let recs = userProfile?.recommendations, !recs.isEmpty else {
+            mainView.updateRecommendation(text: "No recommendations yet. Keep tracking! 🏃‍♀️")
+            return
+        }
         
-//        let hr  = Int((dailySummary?.hrMean ?? 0).rounded())
-//        let st  = dailySummary?.stepsTotal ?? 0
-//        let cal = Int((dailySummary?.caloriesTotal ?? 0).rounded())
-//        let sl  = dailySummary?.sleepHoursTotal ?? 0
-//        
-//        mainView.updateStats(hr: hr, steps: st, calories: cal, sleep: sl)
+        if let latest = recs.sorted(by: { $0.uiDate > $1.uiDate }).first {
+            mainView.updateRecommendation(text: latest.recommendationText)
+            print("Showing Rec: \(latest.uiTitle)")
+        }
     }
 }

@@ -22,6 +22,7 @@ final class AuthManager {
     }
     
     // MARK: - Public Methods
+    
     func saveToken(_ token: String) {
         guard let data = token.data(using: .utf8) else { return }
         
@@ -40,7 +41,7 @@ final class AuthManager {
         if status != errSecSuccess {
             print("AuthManager: Error saving token to Keychain, status: \(status)")
         } else {
-             print("AuthManager: Token saved successfully.")
+            print("AuthManager: Token saved successfully.")
         }
     }
     

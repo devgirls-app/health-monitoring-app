@@ -4,6 +4,7 @@
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/AuthService.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/RecommendationsRepository.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/HealthTrendsRepository.java
+/Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/kafka/producer/HealthDataKafkaProducer.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/service/MLInferenceService.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/kafka/consumer/HealthDataKafkaConsumer.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/ModelRegistry.java
@@ -11,7 +12,6 @@
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/HealthmonitorApplication.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/entity/MLInsights.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/PasswordResetTokenRepository.java
-/Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/kafka/producer/HealthDataProducer.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/UserStatsRepository.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/repository/ModelRegistryRepository.java
 /Users/aruuketurgunbaeva/health-monitoring-app/backend/healthmonitor/src/main/java/com/devgirls/healthmonitor/kafka/config/SecurityConfig.java
