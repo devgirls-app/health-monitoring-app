@@ -11,23 +11,23 @@ final class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let dashboard = UINavigationController(rootViewController: DashboardViewController())
-        dashboard.tabBarItem = UITabBarItem(title: "Главная",
+        let dashboard = UINavigationController(rootViewController: DashboardController())
+        dashboard.tabBarItem = UITabBarItem(title: "Home",
                                             image: UIImage(systemName: "house.fill"),
                                             tag: 0)
         
         let trends = UINavigationController(rootViewController: TrendsViewController())
-        trends.tabBarItem = UITabBarItem(title: "Тренды",
+        trends.tabBarItem = UITabBarItem(title: "Trends",
                                          image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
                                          tag: 1)
         
-        let recs = UINavigationController(rootViewController: RecommendationsViewController())
-        recs.tabBarItem = UITabBarItem(title: "Советы",
+        let recs = UINavigationController(rootViewController: RecommendationsController())
+        recs.tabBarItem = UITabBarItem(title: "Recommendations",
                                        image: UIImage(systemName: "lightbulb.fill"),
                                        tag: 2)
         
         let profile = UINavigationController(rootViewController: ProfileViewController())
-        profile.tabBarItem = UITabBarItem(title: "Профиль",
+        profile.tabBarItem = UITabBarItem(title: "Profile",
                                           image: UIImage(systemName: "person.crop.circle.fill"),
                                           tag: 3)
         

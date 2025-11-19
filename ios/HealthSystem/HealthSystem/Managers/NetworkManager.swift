@@ -50,6 +50,10 @@ final class NetworkManager {
         return url
     }()
     
+    public func getBaseURLString() -> String {
+        return NetworkManager.baseURL.absoluteString
+    }
+    
     private let jsonEncoder: JSONEncoder = {
         let enc = JSONEncoder()
         enc.dateEncodingStrategy = .iso8601
@@ -78,11 +82,19 @@ final class NetworkManager {
     }
     
     private func handleResponse<T: Decodable>(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<T, Error>) -> Void) {
+<<<<<<< Updated upstream
         if let error = error {
+=======
+        print("\n--- INCOMING RESPONSE ---")
+        
+        if let error = error {
+            print("Transport Error: \(error.localizedDescription)")
+>>>>>>> Stashed changes
             return completion(.failure(error))
         }
         
         guard let http = response as? HTTPURLResponse else {
+<<<<<<< Updated upstream
             return completion(.failure(NetworkError.unknown("Invalid response from server.")))
         }
         
@@ -92,6 +104,38 @@ final class NetworkManager {
             case 400: completion(.failure(NetworkError.badRequest(message)))
             case 401: completion(.failure(NetworkError.unauthorized))
             case 403: completion(.failure(NetworkError.forbidden))
+=======
+            print("Error: Not HTTP response")
+            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
+        }
+        
+        print("STATUS CODE: \(http.statusCode)")
+        
+        if let data = data, let rawString = String(data: data, encoding: .utf8) {
+            print("BODY (RAW): \(rawString)")
+        } else {
+            print("BODY: [Empty or Binary]")
+        }
+        
+        if http.statusCode == 401 || http.statusCode == 403 {
+            print("Token expired or forbidden. Global logout initiated.")
+            
+            AuthManager.shared.deleteToken()
+            
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("AuthSessionExpired"), object: nil)
+            }
+            
+            return completion(.failure(NetworkError.unauthorized))
+        }
+        
+        guard (200..<300).contains(http.statusCode) else {
+            print("Server returned error status code")
+            let message = String(data: data ?? Data(), encoding: .utf8)
+            
+            switch http.statusCode {
+            case 400: completion(.failure(NetworkError.badRequest(message)))
+>>>>>>> Stashed changes
             case 404: completion(.failure(NetworkError.notFound))
             default: completion(.failure(NetworkError.serverError(message)))
             }
@@ -99,11 +143,16 @@ final class NetworkManager {
         }
         
         guard let data = data, !data.isEmpty else {
+<<<<<<< Updated upstream
+=======
+            print("Error: No Data to decode")
+>>>>>>> Stashed changes
             return completion(.failure(NetworkError.noData))
         }
         
         do {
             let decodedObject = try self.jsonDecoder.decode(T.self, from: data)
+<<<<<<< Updated upstream
             completion(.success(decodedObject))
         } catch {
             print("Decoding Error: \(error)")
@@ -133,8 +182,76 @@ final class NetworkManager {
         }
         
         completion(.success(()))
+=======
+            print("Decoding Success")
+            completion(.success(decodedObject))
+        } catch {
+            print("DECODING ERROR: \(error)")
+            completion(.failure(NetworkError.decodingError(error)))
+        }
+        print("----------------------------\n")
+>>>>>>> Stashed changes
     }
     
+    private func handleVoidResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<Void, Error>) -> Void) {
+        print("\n--- INCOMING VOID RESPONSE ---")
+        
+        if let error = error {
+            print("Transport Error: \(error.localizedDescription)")
+            return completion(.failure(error))
+        }
+        
+        guard let http = response as? HTTPURLResponse else {
+            return completion(.failure(NetworkError.unknown("Invalid response from server.")))
+        }
+        
+        print("STATUS CODE: \(http.statusCode)")
+        
+        if let data = data, let rawString = String(data: data, encoding: .utf8) {
+            print("BODY (RAW): \(rawString)")
+        }
+        
+        if http.statusCode == 401 || http.statusCode == 403 {
+            print("Token expired or forbidden (Void Request). Global logout initiated.")
+            
+            AuthManager.shared.deleteToken()
+            
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("AuthSessionExpired"), object: nil)
+            }
+            
+            return completion(.failure(NetworkError.unauthorized))
+        }
+        
+        guard (200..<300).contains(http.statusCode) else {
+            print("Server returned error status code")
+            let message = String(data: data ?? Data(), encoding: .utf8)
+            
+            switch http.statusCode {
+            case 400: completion(.failure(NetworkError.badRequest(message)))
+            case 404: completion(.failure(NetworkError.notFound))
+            default: completion(.failure(NetworkError.serverError(message)))
+            }
+            return
+        }
+        
+        print("Request Successful (Void)")
+        completion(.success(()))
+        print("----------------------------\n")
+    }
+    
+    func fetchRecommendations(completion: @escaping (Result<[HealthRecommendation], Error>) -> Void) {
+        let url = NetworkManager.baseURL.appendingPathComponent("recommendations")
+        print("GET", url.absoluteString)
+        
+        guard let req = createAuthorizedRequest(url: url, httpMethod: "GET") else {
+            return completion(.failure(NetworkError.unauthorized))
+        }
+        
+        URLSession.shared.dataTask(with: req) { data, resp, err in
+            self.handleResponse(data: data, response: resp, error: err, completion: completion)
+        }.resume()
+    }
     
     // MARK: - Auth Endpoints (ДОБАВЛЕНО)
     
@@ -210,7 +327,7 @@ final class NetworkManager {
     
     // POST /health-data
     func postHealthData(_ dto: HealthDataDTO, completion: @escaping (Result<Void, Error>) -> Void) {
-        let url = NetworkManager.baseURL.appendingPathComponent("healthdata")
+        let url = NetworkManager.baseURL.appendingPathComponent("/ingest/health-data")
         print("POST", url.absoluteString)
         
         guard var req = createAuthorizedRequest(url: url, httpMethod: "POST") else {
@@ -277,6 +394,19 @@ final class NetworkManager {
             } else {
                 completion(.success(String(data: data, encoding: .utf8) ?? "OK"))
             }
+        }.resume()
+    }
+    
+    func debugTriggerWeeklySummary(userId: Int, date: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let url = NetworkManager.baseURL.appendingPathComponent("ml-test/weekly-fatigue/\(userId)/\(date)")
+        print("DEBUG Trigger: \(url.absoluteString)")
+        
+        guard let req = createAuthorizedRequest(url: url, httpMethod: "GET") else {
+            return completion(.failure(NetworkError.unauthorized))
+        }
+        
+        URLSession.shared.dataTask(with: req) { data, resp, err in
+            self.handleVoidResponse(data: data, response: resp, error: err, completion: completion)
         }.resume()
     }
 }
