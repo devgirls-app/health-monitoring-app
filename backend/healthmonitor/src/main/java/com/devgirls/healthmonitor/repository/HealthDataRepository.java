@@ -15,19 +15,18 @@ public interface HealthDataRepository extends JpaRepository<HealthData, Long> {
 
     List<HealthData> findAllByUser_UserId(Long userId);
 
-    Optional<HealthData> findFirstByUser_UserIdAndDayAndSource(
+    Optional<HealthData> findFirstByUser_UserIdAndDay(
             Long userId,
-            LocalDate day,
-            String source
+            LocalDate day
     );
 
     @Query(value = """
         SELECT 
           COALESCE(SUM(steps),0)                                  AS steps,
           COALESCE(SUM(calories),0)::numeric                      AS calories,
-          COALESCE(AVG(NULLIF(heart_rate,0)),0)::numeric          AS hr_mean,
-          COALESCE(MAX(heart_rate),0)                             AS hr_max,
-          COALESCE(SUM(sleep_hours),0)::numeric                   AS sleep
+          COALESCE(AVG(CASE WHEN heart_rate > 0 THEN heart_rate END), 0) AS hr_mean,
+          COALESCE(MAX(heart_rate), 0) AS hr_max,
+          COALESCE(MAX(sleep_hours),0)::numeric                   AS sleep
         FROM health_data
         WHERE user_id = :userId AND "timestamp" >= :from AND "timestamp" < :to
         """, nativeQuery = true)

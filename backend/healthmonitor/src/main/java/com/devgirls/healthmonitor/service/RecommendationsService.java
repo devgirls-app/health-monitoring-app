@@ -81,18 +81,17 @@ public class RecommendationsService {
         LocalDateTime createdAt = (date != null) ? date : LocalDateTime.now();
         var day = createdAt.toLocalDate();
         LocalDateTime from = day.atStartOfDay();
-        LocalDateTime to = from.plusDays(1);
-
-        var existingOpt = repo.findFirstByUser_UserIdAndSourceAndRecommendationTextAndCreatedAtBetweenOrderByCreatedAtDesc(
+        LocalDateTime to = day.atTime(23, 59, 59); 
+        var existingOpt = repo.findFirstByUser_UserIdAndSourceAndCreatedAtBetween(
                 userId,
                 source,
-                text,
                 from,
                 to
         );
 
         if (existingOpt.isPresent()) {
             Recommendations rec = existingOpt.get();
+            rec.setRecommendationText(text);
             rec.setSeverity(severity);
             rec.setCreatedAt(createdAt);
             return repo.save(rec);
@@ -107,5 +106,4 @@ public class RecommendationsService {
 
         return repo.save(rec);
     }
-
 }

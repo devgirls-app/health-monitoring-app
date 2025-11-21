@@ -16,29 +16,52 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleSessionExpired),
+            selector: #selector(handleLogout),
             name: NSNotification.Name("AuthSessionExpired"),
             object: nil
         )
         
-        self.checkAuthentication()
+        validateSessionAndStart()
     
         if let urlContext = connectionOptions.urlContexts.first {
             handleDeepLink(url: urlContext.url)
         }
     }
     
-    @objc private func handleSessionExpired() {
-        print("Session expired notification received. Switching to SignInController.")
-        self.goToController(with: SignInController())
+    // MARK: - Start Logic (Cold Start)
+    
+    private func validateSessionAndStart() {
+        guard AuthManager.shared.isAuthenticated, let userId = AuthManager.shared.getUserId() else {
+            self.goToController(with: SignInController())
+            return
+        }
+        
+        let splashVC = UIViewController()
+        splashVC.view.backgroundColor = .systemBackground
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.startAnimating()
+        splashVC.view.addSubview(spinner)
+        spinner.center = splashVC.view.center
+        
+        window?.rootViewController = splashVC
+        
+        print("🔍 Validating token with server...")
+        NetworkManager.shared.fetchUserProfile(userId: userId) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    print(" Token is valid. Starting app.")
+                    self?.goToController(with: MainTabBarController())
+                case .failure:
+                    print(" Token invalid or user deleted. Resetting session.")
+                    AuthManager.shared.deleteToken()
+                    self?.goToController(with: SignInController())
+                }
+            }
+        }
     }
     
-    private func setUpWindow(with scene: UIScene) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        let window = UIWindow(windowScene: windowScene)
-        self.window = window
-        self.window?.makeKeyAndVisible()
-    }
+    // MARK: - Auth Routing
     
     public func checkAuthentication() {
         if AuthManager.shared.isAuthenticated {
@@ -48,23 +71,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
     
-    private func goToController(with viewController: UIViewController) {
-        DispatchQueue.main.async { [weak self] in
-            UIView.animate(withDuration: 0.25) {
-                self?.window?.layer.opacity = 0
-            } completion: { [weak self] _ in
-                
-                let nav = UINavigationController(rootViewController: viewController)
-                nav.modalPresentationStyle = .fullScreen
-                self?.window?.rootViewController = nav
-                
-                UIView.animate(withDuration: 0.25) {[weak self] in
-                    self?.window?.layer.opacity = 1
-                }
-            }
+    @objc private func handleLogout() {
+        DispatchQueue.main.async {
+            self.goToController(with: SignInController())
         }
     }
+    
+    // MARK: - Navigation Helper
+    
+    private func setUpWindow(with scene: UIScene) {
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        self.window?.makeKeyAndVisible()
+    }
+    
+    private func goToController(with viewController: UIViewController) {
+        guard let window = self.window else { return }
+        
+        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            if let tabBar = viewController as? UITabBarController {
+                window.rootViewController = tabBar
+            } else {
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .fullScreen
+                window.rootViewController = nav
+            }
+        }, completion: nil)
+    }
 
+    // MARK: - Deep Linking
+    
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let urlContext = URLContexts.first else { return }
         handleDeepLink(url: urlContext.url)
@@ -74,21 +111,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
               components.host == "reset-password",
               let tokenItem = components.queryItems?.first(where: { $0.name == "token" }),
-              let token = tokenItem.value else {
-            return
-        }
-        
-        print("Received deep link with token: \(token)")
+              let token = tokenItem.value else { return }
         
         DispatchQueue.main.async {
             let resetVC = ResetPasswordController(token: token)
-            
-            if let rootNav = self.window?.rootViewController as? UINavigationController {
-                if rootNav.topViewController is MainTabBarController {
-                    rootNav.pushViewController(resetVC, animated: true)
-                } else {
-                    rootNav.present(UINavigationController(rootViewController: resetVC), animated: true)
-                }
+            if let root = self.window?.rootViewController {
+                root.present(UINavigationController(rootViewController: resetVC), animated: true)
             }
         }
     }

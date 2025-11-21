@@ -6,6 +6,7 @@ import com.devgirls.healthmonitor.entity.User;
 import com.devgirls.healthmonitor.repository.HealthDataRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class HealthDataService {
         this.recommendationEngineService = recommendationEngineService;
     }
 
-    // Save health data and trigger recommendation engine
+    @Transactional
     public HealthData save(HealthData data) {
         // 1. Get user
         if (data.getUser() != null && data.getUser().getUserId() != null) {
@@ -46,31 +47,30 @@ public class HealthDataService {
         LocalDate day = data.getTimestamp().toLocalDate();
         data.setDay(day);
 
-        // 3. Find existed data for the day + source
-        String source = data.getSource();
-        if (source == null) {
-            source = "unknown";
-            data.setSource(source);
-        }
-
-        var existingOpt = healthDataRepository.findFirstByUser_UserIdAndDayAndSource(
+        // 3. Find existed data for the day (IGNORING SOURCE to avoid duplicates)
+        var existingOpt = healthDataRepository.findFirstByUser_UserIdAndDay(
                 data.getUser().getUserId(),
-                day,
-                source
+                day
         );
 
         HealthData toSave;
         if (existingOpt.isPresent()) {
-            // ---- UPDATE ----
             HealthData existing = existingOpt.get();
             existing.setTimestamp(data.getTimestamp());
+
             existing.setHeartRate(data.getHeartRate());
             existing.setSteps(data.getSteps());
             existing.setCalories(data.getCalories());
             existing.setSleepHours(data.getSleepHours());
+
+            existing.setSource(data.getSource() != null ? data.getSource() : "unknown");
+
             existing.setUpdatedAt(LocalDateTime.now());
             toSave = existing;
         } else {
+            if (data.getSource() == null) {
+                data.setSource("unknown");
+            }
             data.setCreatedAt(LocalDateTime.now());
             data.setUpdatedAt(LocalDateTime.now());
             toSave = data;
@@ -83,7 +83,6 @@ public class HealthDataService {
         return saved;
     }
 
-    // Fetch all health data and convert to DTO
     public List<HealthDataDTO> findAll() {
         return healthDataRepository.findAll()
                 .stream()
@@ -91,7 +90,6 @@ public class HealthDataService {
                 .collect(Collectors.toList());
     }
 
-    // Convert entity to DTO
     public HealthDataDTO convertToDTO(HealthData data) {
         return HealthDataDTO.builder()
                 .userId(data.getUser() != null ? data.getUser().getUserId() : null)
@@ -104,7 +102,6 @@ public class HealthDataService {
                 .build();
     }
 
-    // Fetch by user
     public List<HealthDataDTO> findByUserId(Long userId) {
         return healthDataRepository.findAllByUser_UserId(userId)
                 .stream()

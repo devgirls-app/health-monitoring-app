@@ -25,11 +25,21 @@ public class AggregatesController {
         return ResponseEntity.ok(saved);
     }
 
-    @PostMapping("/run/{userId}/{date}")
-    public ResponseEntity<?> run(@PathVariable Long userId, @PathVariable LocalDate date) {
-        DailyAggregates entity = aggSvc.aggregateDay(userId, date);
-        DailyAggregatesDTO dto = aggSvc.convertToDTO(entity);
-        return ResponseEntity.ok(dto);
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<List<DailyAggregatesDTO>> getHistory(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "7") int days
+    ) {
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(days);
+
+        List<DailyAggregates> entities = repo.findRange(userId, from, to);
+
+        List<DailyAggregatesDTO> dtos = entities.stream()
+                .map(aggSvc::convertToDTO)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{userId}/{date}")

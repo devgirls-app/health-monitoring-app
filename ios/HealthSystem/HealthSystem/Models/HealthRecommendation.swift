@@ -61,6 +61,8 @@ extension HealthRecommendation {
     // Заголовок для UI
     var uiTitle: String {
         if isWeeklySummary { return "Weekly Report" }
+        if source == "onboarding" { return "Welcome" }
+        
         if let src = source {
             let formatted = src.replacingOccurrences(of: "_", with: " ").capitalized
             return "\(formatted) Tip"

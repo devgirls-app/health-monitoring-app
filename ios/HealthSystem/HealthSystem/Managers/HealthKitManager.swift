@@ -41,7 +41,7 @@ final class HealthKitManager {
         }
     }
     
-    // MARK: - Fetch Today Snapshot (Для Дашборда: Сегодня)
+    // MARK: - Fetch Today Snapshot
     func fetchTodaySnapshot(manualHR: Int?, completion: @escaping (HealthSnapshot?) -> Void) {
         
         let group = DispatchGroup()
@@ -115,7 +115,6 @@ final class HealthKitManager {
             let formatter = ISO8601DateFormatter()
             let isoTimestamp = formatter.string(from: now)
             
-            // Инициализация строго в соответствии с вашей структурой HealthSnapshot
             let snapshot = HealthSnapshot(
                 steps: steps,
                 averageHeartRate: hrAvg,
@@ -134,13 +133,15 @@ final class HealthKitManager {
         }
     }
     
-    // MARK: - Fetch History Snapshot (Для заполнения дырок: Прошлые дни)
+    // MARK: - Fetch History Snapshot
     func fetchSnapshot(for date: Date, completion: @escaping (HealthSnapshot?) -> Void) {
         let group = DispatchGroup()
         
         var steps: Int?
         var calories: Double?
         var sleepHours: Double?
+        var distance: Double?
+        var hrAvg: Int?
         
         group.enter()
         fetchSteps(for: date) { value, _ in
@@ -155,23 +156,41 @@ final class HealthKitManager {
         }
         
         group.enter()
+        fetchDistance(for: date) { value in
+            distance = value
+            group.leave()
+        }
+        
+        group.enter()
         fetchSleepHours(for: date) { value in
             sleepHours = value
             group.leave()
         }
         
+        group.enter()
+        fetchHeartRate(for: date) { samples, _ in
+            if let samples = samples, !samples.isEmpty {
+                let avg = self.averageHeartRate(from: samples)
+                hrAvg = Int(avg)
+                print("❤️ [History] \(date): Found HR samples. Avg: \(hrAvg ?? 0)")
+            } else {
+                // print("💔 [History] \(date): No HR samples found.")
+            }
+            group.leave()
+        }
+        
         group.notify(queue: .main) {
-            // Генерируем timestamp для исторической даты
             let formatter = ISO8601DateFormatter()
-            let isoTimestamp = formatter.string(from: date)
             
-            // Создаем упрощенный снапшот для истории
+            let noon = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date) ?? date
+            let isoTimestamp = formatter.string(from: noon)
+            
             let snapshot = HealthSnapshot(
                 steps: steps,
-                averageHeartRate: nil, // Пульс пропускаем для истории
+                averageHeartRate: hrAvg,
                 calories: calories,
                 sleepHours: sleepHours,
-                distance: nil,
+                distance: distance,
                 manualHeartRate: nil,
                 timestamp: isoTimestamp,
                 age: nil,
@@ -208,7 +227,6 @@ final class HealthKitManager {
         
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: date)
-        // Конец дня = начало следующего дня
         guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil, nil); return }
         
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
@@ -291,10 +309,17 @@ final class HealthKitManager {
         let start = calendar.startOfDay(for: date)
         guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { completion(nil, nil); return }
         
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: [])
         
-        let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
-            completion(samples as? [HKQuantitySample], error)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        
+        let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            
+            if let samples = samples as? [HKQuantitySample], !samples.isEmpty {
+                completion(samples, nil)
+            } else {
+                completion(nil, error)
+            }
         }
         healthStore.execute(query)
     }
