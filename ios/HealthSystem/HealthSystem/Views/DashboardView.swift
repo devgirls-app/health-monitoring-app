@@ -149,19 +149,19 @@ final class DashboardView: UIView {
         addSubview(activityIndicator)
         
         greetingLabel.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide).offset(16)
+            make.top.equalTo(safeAreaLayoutGuide).offset(20)
             make.leading.equalToSuperview().offset(20)
         }
         
         statusIndicator.snp.makeConstraints { make in
             make.leading.equalTo(greetingLabel)
-            make.top.equalTo(greetingLabel.snp.bottom).offset(8)
+            make.top.equalTo(greetingLabel.snp.bottom).offset(12)
             make.size.equalTo(CGSize(width: 12, height: 12))
         }
         
         statusLabel.snp.makeConstraints { make in
             make.centerY.equalTo(statusIndicator)
-            make.leading.equalTo(statusIndicator.snp.trailing).offset(8)
+            make.leading.equalTo(statusIndicator.snp.trailing).offset(12)
         }
         
         let topStack = UIStackView(arrangedSubviews: [pulseCard, stepsCard])

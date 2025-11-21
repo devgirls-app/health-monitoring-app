@@ -18,10 +18,9 @@ public interface RecommendationsRepository extends JpaRepository<Recommendations
             LocalDateTime to
     );
 
-    Optional<Recommendations> findFirstByUser_UserIdAndSourceAndRecommendationTextAndCreatedAtBetweenOrderByCreatedAtDesc(
+    Optional<Recommendations> findFirstByUser_UserIdAndSourceAndCreatedAtBetween(
             Long userId,
             String source,
-            String recommendationText,
             LocalDateTime from,
             LocalDateTime to
     );

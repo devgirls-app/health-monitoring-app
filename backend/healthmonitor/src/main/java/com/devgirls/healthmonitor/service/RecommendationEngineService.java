@@ -7,8 +7,9 @@ import com.devgirls.healthmonitor.repository.DailyAggregatesRepository;
 import com.devgirls.healthmonitor.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class RecommendationEngineService {
@@ -18,128 +19,105 @@ public class RecommendationEngineService {
     private final UserRepository userRepository;
 
     public RecommendationEngineService(RecommendationsService recommendationsService,
-                                       UserRepository userRepository, DailyAggregatesRepository dailyAggregatesRepository) {
+                                       UserRepository userRepository,
+                                       DailyAggregatesRepository dailyAggregatesRepository) {
         this.recommendationsService = recommendationsService;
         this.userRepository = userRepository;
         this.dailyAggregatesRepository = dailyAggregatesRepository;
     }
 
     public void analyzeAndGenerate(HealthData data) {
-        String recommendationText = null;
-
-        if (data.getSteps() != null && data.getSteps() < 5000) {
-            recommendationText = "👟 Low activity detected. Try walking at least 5000 steps today.";
-        } else if (data.getSleepHours() != null
-                && data.getSleepHours().compareTo(BigDecimal.valueOf(7)) < 0) {
-            recommendationText = "😴 You slept less than 7 hours. Aim for 7–8 hours of rest.";
-        }
-
-        if (recommendationText != null) {
-            String severity = "advisory";
-            User user = data.getUser();
-
-            if (user != null) {
-                // Используем .create для автоматической проверки и обновления существующей рекомендации
-                recommendationsService.create(
-                        user.getUserId(),
-                        recommendationText,
-                        "RuleEngine",
-                        severity,
-                        data.getTimestamp() != null ? data.getTimestamp() : LocalDateTime.now()
-                );
-            }
-
-            System.out.println("Generated recommendation for user " +
-                    (user != null ? user.getUserId() : "Unknown") + ": " + recommendationText);
-        }
     }
 
-    // Analysis of aggregates
-    public void evaluate(DailyAggregates agg, double prob) {
+    public void evaluate(DailyAggregates agg, double mlProbability) {
         if (agg == null) return;
+        User user = agg.getUser();
+        if (user == null) return;
 
-        Long userId = agg.getUserId();
-        if (userId == null) return;
-
+        Long userId = user.getUserId();
         LocalDateTime recDate = LocalDateTime.now();
         if (agg.getDate() != null) {
             recDate = agg.getDate().atTime(10, 0);
         }
 
-        // --- Rule-based recommendation #1 ---
-        if (agg.getDSleep7d() != null && agg.getDSteps7d() != null
-                && agg.getDSleep7d().doubleValue() < -0.8
-                && agg.getDSteps7d().doubleValue() > 0.8) {
+        String finalRecText = null;
+        String finalSource = null;
+        String finalSeverity = null;
 
-            recommendationsService.create(
-                    userId,
-                    "Your sleep is well below normal while your activity is high. This pattern leads to fatigue.",
-                    "rules",
-                    "warning",
-                    recDate
-            );
+        double weight = (user.getWeight() != null) ? user.getWeight().doubleValue() : 70.0;
+        double heightM = (user.getHeight() != null) ? user.getHeight().doubleValue() / 100.0 : 1.75;
+        double bmi = weight / (heightM * heightM);
+
+        boolean isOverweight = bmi > 25.0;
+
+        int steps = (agg.getStepsTotal() != null) ? agg.getStepsTotal() : 0;
+        boolean highActivity = steps > 8000;
+        boolean lowActivity = steps < 4000;
+
+
+        if (agg.getSleepHoursTotal() != null && agg.getSleepHoursTotal().doubleValue() > 0.1 && agg.getSleepHoursTotal().doubleValue() < 5.0) {
+            finalRecText = "\uD83D\uDE34 Severe sleep deprivation. Regardless of your goals, you need recovery tonight.";
+            finalSource = "RuleEngine";
+            finalSeverity = "critical";
+        }
+        else if (steps < 2000 && mlProbability < 0.4) {
+            finalRecText = isOverweight
+                    ? "\uD83D\uDC5F You haven't moved much today. For your metabolism, a 20-min walk is crucial."
+                    : "\uD83D\uDC5F Energy is stagnant. A quick walk will help you sleep better.";
+            finalSource = "RuleEngine";
+            finalSeverity = "warning";
         }
 
-        // --- Rule-based recommendation #2 ---
-        Integer yesterdaySteps =
-                dailyAggregatesRepository.findStepsTotal(userId, agg.getDate().minusDays(1));
+        if (finalRecText == null) {
+            finalSource = "ml_model_contextual";
+            Random rand = new Random();
 
-        if ((agg.getStepsTotal() != null && agg.getStepsTotal() < 3000)
-                && (yesterdaySteps != null && yesterdaySteps < 3000)) {
+            if (mlProbability > 0.7) {
+                if (highActivity) {
+                    finalRecText = "💪 You've worked hard today! This fatigue is productive. Focus on high-protein food and sleep to recover.";
+                    finalSeverity = "warning";
+                } else {
+                    finalRecText = "⚠️ High fatigue detected despite low activity. This suggests stress or burnout. Try meditation or early sleep.";
+                    finalSeverity = "critical";
+                }
+            }
 
-            recommendationsService.create(
-                    userId,
-                    "Two consecutive days of low activity — take a 15–20 minute light walk.",
-                    "rules",
-                    "advisory",
-                    recDate
-            );
+            else if (mlProbability > 0.4) {
+                if (isOverweight && lowActivity) {
+                    finalRecText = "📉 Fatigue risk is moderate. Don't let it stop you—a light walk actually reduces fatigue!";
+                    finalSeverity = "warning";
+                } else {
+                    finalRecText = "⚖️ Moderate fatigue. You are in the yellow zone. Hydrate and avoid late caffeine.";
+                    finalSeverity = "advisory";
+                }
+            }
+
+            else {
+                if (highActivity) {
+                    finalRecText = "🚀 Impressive! High activity and low fatigue risk. Your endurance is improving.";
+                    finalSeverity = "advisory";
+                } else {
+                    List<String> tips = List.of(
+                            "✨ All systems normal. Keep maintaining your healthy rhythm.",
+                            "🌿 Your vitals look stable. Great day to focus on mental tasks.",
+                            "✅ Low fatigue risk. Ready for tomorrow!"
+                    );
+                    finalRecText = tips.get(rand.nextInt(tips.size()));
+                    finalSeverity = "advisory";
+                }
+            }
         }
 
-        // --- ML-based dynamic recommendations ---
-        String recText;
-        String severity;
-
-        java.util.Random rand = new java.util.Random();
-
-        java.util.List<String> lowTexts = java.util.List.of(
-                "Fatigue risk is low. Consider a light workout to stay active.",
-                "Energy levels look stable — stay consistent with your daily routine.",
-                "Everything looks great — keep up your healthy habits!"
-        );
-        java.util.List<String> moderateTexts = java.util.List.of(
-                "Your fatigue risk is moderate. Try taking short breaks.",
-                "You might be slightly overworked. Stay hydrated.",
-                "Moderate fatigue detected — take some rest after work."
-        );
-        java.util.List<String> highTexts = java.util.List.of(
-                "High fatigue risk detected — take a rest day.",
-                "You’re showing signs of fatigue. Prioritize rest.",
-                "Severe fatigue risk — avoid stress and physical exertion."
-        );
-
-        if (prob <= 0.4) {
-            recText = lowTexts.get(rand.nextInt(lowTexts.size()));
-            severity = "advisory";
-        } else if (prob <= 0.7) {
-            recText = moderateTexts.get(rand.nextInt(moderateTexts.size()));
-            severity = "warning";
-        } else {
-            recText = highTexts.get(rand.nextInt(highTexts.size()));
-            severity = "critical";
-        }
 
         recommendationsService.create(
                 userId,
-                recText,
-                "ml_model",
-                severity,
+                finalRecText,
+                finalSource,
+                finalSeverity,
                 recDate
         );
 
-        System.out.printf(
-                "🧠 [ML Recommendation] user=%d | prob=%.3f | severity=%s | date=%s%n",
-                userId, prob, severity, recDate
-        );
+        System.out.printf("🧠 [SmartRec] User=%d | BMI=%.1f | Steps=%d | ML=%.2f | Verdict: %s%n",
+                userId, bmi, steps, mlProbability, finalRecText);
     }
 }

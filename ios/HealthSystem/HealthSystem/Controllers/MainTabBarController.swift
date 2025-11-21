@@ -16,7 +16,7 @@ final class MainTabBarController: UITabBarController {
                                             image: UIImage(systemName: "house.fill"),
                                             tag: 0)
         
-        let trends = UINavigationController(rootViewController: TrendsViewController())
+        let trends = UINavigationController(rootViewController: TrendsController())
         trends.tabBarItem = UITabBarItem(title: "Trends",
                                          image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
                                          tag: 1)
@@ -26,7 +26,7 @@ final class MainTabBarController: UITabBarController {
                                        image: UIImage(systemName: "lightbulb.fill"),
                                        tag: 2)
         
-        let profile = UINavigationController(rootViewController: ProfileViewController())
+        let profile = UINavigationController(rootViewController: ProfileController())
         profile.tabBarItem = UITabBarItem(title: "Profile",
                                           image: UIImage(systemName: "person.crop.circle.fill"),
                                           tag: 3)

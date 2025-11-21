@@ -3,6 +3,8 @@ import Foundation
 struct UserProfile: Codable {
     let userId: Int
     let name: String?
+    let surname: String?
+    let email: String?
     let age: Int?
     let gender: String?
     let height: Double?

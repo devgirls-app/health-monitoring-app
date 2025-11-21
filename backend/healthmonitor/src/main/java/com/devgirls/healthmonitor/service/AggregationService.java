@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,6 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AggregationService {
+
+    private static final int SCALE = 2;
+    private static final int DAYS_IN_TREND = 7;
+
     private final HealthDataRepository healthDataRepository;
     private final DailyAggregatesRepository dailyAggregatesRepository;
     private final UserRepository userRepository;
@@ -30,7 +35,7 @@ public class AggregationService {
     private BigDecimal toBig(Object o) {
         if (o == null) return BigDecimal.ZERO;
         if (o instanceof BigDecimal bd) return bd;
-        if (o instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        if (o instanceof Number n) return BigDecimal.valueOf(n.doubleValue()).setScale(SCALE, RoundingMode.HALF_UP);
         throw new IllegalArgumentException("Cannot convert to BigDecimal: " + o);
     }
 
@@ -48,7 +53,8 @@ public class AggregationService {
         BigDecimal calories   = toBig(m.get("calories"));
         BigDecimal hrMean     = toBig(m.get("hr_mean"));
         BigDecimal sleepHours = toBig(m.get("sleep"));
-        Integer hrMax = m.get("hr_max") != null ? ((Number) m.get("hr_max")).intValue() : 0;
+
+        Integer hrMax = (m.get("hr_max") instanceof Number) ? ((Number) m.get("hr_max")).intValue() : 0;
 
         DailyAggregates agg = dailyAggregatesRepository
                 .findByUser_UserIdAndDate(userId, day)
@@ -62,43 +68,21 @@ public class AggregationService {
         agg.setHrMax(hrMax);
         agg.setSleepHoursTotal(sleepHours);
 
-        LocalDate from = day.minusDays(6);
+
+        LocalDate from = day.minusDays(DAYS_IN_TREND - 1);
         LocalDate to = day.minusDays(1);
 
         var prevAggs = dailyAggregatesRepository
                 .findByUser_UserIdAndDateBetweenOrderByDateAsc(userId, from, to);
 
-        double sumStepsPrev = 0.0;
-        int countStepsPrev = 0;
+        List<DailyAggregates> allDays = new java.util.ArrayList<>(prevAggs);
+        allDays.add(agg);
 
-        double sumSleepPrev = 0.0;
-        int countSleepPrev = 0;
+        BigDecimal meanStepsPrev = calculateRollingMean(allDays, a -> BigDecimal.valueOf(a.getStepsTotal()), DAYS_IN_TREND);
+        BigDecimal meanSleepPrev = calculateRollingMean(allDays, DailyAggregates::getSleepHoursTotal, DAYS_IN_TREND);
 
-        for (DailyAggregates prev : prevAggs) {
-            if (prev.getStepsTotal() != null && prev.getStepsTotal() > 0) {
-                sumStepsPrev += prev.getStepsTotal();
-                countStepsPrev++;
-            }
-            if (prev.getSleepHoursTotal() != null && prev.getSleepHoursTotal().compareTo(BigDecimal.ZERO) > 0) {
-                sumSleepPrev += prev.getSleepHoursTotal().doubleValue();
-                countSleepPrev++;
-            }
-        }
-
-        BigDecimal meanStepsPrev = (countStepsPrev > 0)
-                ? BigDecimal.valueOf(sumStepsPrev).divide(BigDecimal.valueOf(countStepsPrev), 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
-
-        BigDecimal meanSleepPrev = (countSleepPrev > 0)
-                ? BigDecimal.valueOf(sumSleepPrev).divide(BigDecimal.valueOf(countSleepPrev), 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
-
-        BigDecimal dSteps7d = null;
-        BigDecimal dSleep7d = null;
-
-        dSteps7d = steps.subtract(meanStepsPrev).setScale(2, RoundingMode.HALF_UP);
-
-        dSleep7d = sleepHours.subtract(meanSleepPrev).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal dSteps7d = steps.subtract(meanStepsPrev).setScale(SCALE, RoundingMode.HALF_UP);
+        BigDecimal dSleep7d = sleepHours.subtract(meanSleepPrev).setScale(SCALE, RoundingMode.HALF_UP);
 
         agg.setZHrMean(null);
         agg.setZSteps(null);
@@ -113,7 +97,6 @@ public class AggregationService {
             log.info("ML features calculated for user {} on {}: Steps Delta={}; Sleep Delta={}",
                     userId, day, dSteps7d, dSleep7d);
             log.info("ML Probability: {}", prob);
-
 
             ModelRegistry model = modelRegistryRepository
                     .findFirstByNameAndIsActiveTrueOrderByCreatedAtDesc("fatigue_risk")
@@ -137,6 +120,29 @@ public class AggregationService {
         }
 
         return saved;
+    }
+
+    private BigDecimal calculateRollingMean(
+            List<DailyAggregates> days,
+            java.util.function.Function<DailyAggregates, BigDecimal> valueExtractor,
+            int totalDays) {
+
+        BigDecimal sum = BigDecimal.ZERO;
+        int count = 0;
+
+        for (DailyAggregates day : days) {
+            BigDecimal value = valueExtractor.apply(day);
+            if (value != null && value.compareTo(BigDecimal.ZERO) > 0) {
+                sum = sum.add(value);
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return sum.divide(BigDecimal.valueOf(count), SCALE, RoundingMode.HALF_UP);
     }
 
     public DailyAggregatesDTO convertToDTO(DailyAggregates agg) {
